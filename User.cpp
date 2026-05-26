@@ -1,23 +1,22 @@
 #include "User.h"
 #include <iostream>
+#include <string>
+using namespace std;
 
-User::User(const std::string& id, const std::string& name,
-           const std::string& surname, const std::string& email)
+User::User(string& id, string& name, string& surname, string& email)
     : id(id), name(name), surname(surname), email(email){
     // Empty constructor body
 }
 
-bool User::login(const std::string& credentials) {
-    if (credentials == "wrong") {
-        std::cerr << "Login failed: invalid credentials" << std::endl;
-        return false;
-    }
+void ERStatusCheck(){ 
+           
+}
 
-    std::cout << " User " << name << " logged in successfully" << std::endl;
-    return true;
+void CustomerService(){
+           
 }
 
 void User::logout() {
-    std::cout << " User " << name << " logged out" << std::endl;
+   
 }
 
