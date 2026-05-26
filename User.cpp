@@ -16,7 +16,7 @@ void CustomerService(){
            
 }
 
-void User::logout() {
+void logout() {
    
 }
 
