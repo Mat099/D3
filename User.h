@@ -2,32 +2,34 @@
 #define USER_H
 
 #include <string>
-#include <chrono>
+using namespace std;
 
 class User {
 private:
-    std::string id;
-    std::string name;
-    std::string surname;
-    std::string email;
-    std::string phoneNumber;
-    std::string passwordHash;
+    string id;
+    string name;
+    string surname;
+    string email;
+    string phoneNumber;
+    string passwordHash;
 
 public:
 
     //constructor
-    User(const std::string& id, const std::string& name, 
-         const std::string& surname, const std::string& email);
+    User(string& id, string& name, string& surname, string& email);
     
     // destructor 
     virtual ~User() = default;
     
-    //UC1
-    virtual bool login(const std::string& credentials);
-    
     //UC 11
     void logout();
-    
+
+    //UC 3
+    void ERStatusCheck();
+
+    //UC
+    void CustomerService();
+
     // getters
     std::string getId() const { return id; }
     std::string getName() const { return name; }
