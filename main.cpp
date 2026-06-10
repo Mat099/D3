@@ -1,6 +1,6 @@
 #include <iostream>
 #include <string>
-#inclide "User.h"
+#include ".h\User.h"
 
 int main(){
 
@@ -23,7 +23,7 @@ int main(){
       patientMenu();
     }
     case 2 : {
-      login
-
+      login();
+    }
     
 }
