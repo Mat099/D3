@@ -5,22 +5,22 @@
 #include <string>
 using namespace std;
 
-class Patient: public User {
+class Patient : public User {
 private:
     string insurance;
-    string password;
-    Appointment* appointments;
+    /*Appointment* appointments;
     Payment* payments;
-    MedicalRecord* medicalRecord;  
+    MedicalRecord* medicalRecord;  */
 
 public:
-    Patient(string& id, string& name, string& surname, string& email, string& insurance, string& password);
+    Patient(const string& id, const string& name, const string& surname, const string& email, 
+        const string& phoneNumber, const string& insurance, const string& password);
 
     
     //UC1
     bool login(string& email, string &password);
 
-    //UC 2
+    /*UC 2
     Appointment* bookAppointment();
     bool cancelAppointment();
     Appointment* rescehduleAppointment();
@@ -30,7 +30,7 @@ public:
     MedicalRecord* viewMedicalRecords();
 
     //UC
-    Payment* makePayment();
+    Payment* makePayment();*/
 
     
     // getters
