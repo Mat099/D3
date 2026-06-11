@@ -1,21 +1,52 @@
 #include "User.h"
 #include <iostream>
-#include <string>
 using namespace std;
 
-User::User(string& id, string& name, string& surname, string& email)
-    : id(id), name(name), surname(surname), email(email){
-    // Empty constructor body
+User::User(const string& id, 
+          const string& name, 
+          const string& surname, 
+          const string& email, 
+          const string& phoneNumber, 
+          const string& password)
+     : id(id), 
+       name(name), 
+       surname(surname), 
+       email(email), 
+       phoneNumber(phoneNumber), 
+       password(password){
 }
 
-void ERStatusCheck(){ 
-           
+//UC 11: logout 
+void User:: logout() {
+
+     cout << "╔═════════════════════════════════════════════════╗" << endl;
+     cout << "║  Are you sure you want to logout? (y/n)         ║" << endl;
+     cout << "╚═════════════════════════════════════════════════╝" << endl;
+
+     char choice;
+     cin >> choice;
+
+     if (choice == 'y' || choice == 'Y') {
+         cout << "╔═════════════════════════════════════════════════╗" << endl;
+         cout << "║  You have been logged out. Goodbye!             ║" << endl;
+         cout << "╚═════════════════════════════════════════════════╝" << endl;
+     } else if (choice == 'n' || choice == 'N') {
+         cout << "╔═════════════════════════════════════════════════╗" << endl;
+         cout << "║  Logout cancelled. You are still logged in.     ║" << endl;
+         cout << "╚═════════════════════════════════════════════════╝" << endl;
+     } else {
+         cout << "╔═════════════════════════════════════════════════╗" << endl;
+         cout << "║  Invalid choice. Logout cancelled.              ║" << endl;
+         cout << "╚═════════════════════════════════════════════════╝" << endl;
+     }
 }
 
-void CustomerService(){
-           
+//UC 3: checkER
+void User::checkER(){
+
 }
 
-void logout() {
-   
+//UC 5: customer service
+void User::customerService(){
+
 }
