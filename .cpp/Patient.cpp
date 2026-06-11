@@ -11,7 +11,7 @@ Patient::Patient(const string& id, const string& name, const string& surname,
     //appointments(nullptr), payments(nullptr), medicalRecord(nullptr)
 }
 
-bool Patient::login(string& email, string &password) {
+bool Patient::login(string& email, string& password, string& name) {
     cout << "╔══════════════════════════════════════════════════╗" << endl;
     cout << "║  1. Login with CIE                               ║" << endl;
     cout << "║  2. Login with SPID                              ║" << endl;
