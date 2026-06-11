@@ -8,12 +8,7 @@ User::User(const string& id,
           const string& email, 
           const string& phoneNumber, 
           const string& password)
-     : id(id), 
-       name(name), 
-       surname(surname), 
-       email(email), 
-       phoneNumber(phoneNumber), 
-       password(password){
+     : id(id), name(name), surname(surname), email(email), phoneNumber(phoneNumber), password(password){
 }
 
 //UC 11: logout 
@@ -41,12 +36,12 @@ void User:: logout() {
      }
 }
 
-//UC 3: checkER
+//UC 3
 void User::checkER(){
 
 }
 
-//UC 5: customer service
+//UC 5
 void User::customerService(){
 
 }
