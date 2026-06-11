@@ -18,7 +18,7 @@ public:
 
     
     //UC1
-    bool login(string& email, string &password);
+    bool login(string& email, string& password, string& name);
 
     /*UC 2
     Appointment* bookAppointment();
