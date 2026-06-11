@@ -7,14 +7,13 @@ using namespace std;
 class User {
 private:
     string id;
+    string name;
     string surname;
     string email;
     string phoneNumber;
     string password;
 
 public:
-    string name;
-
     //constructor
     User(const string& id, const string& name, const string& surname, 
         const string& email, const string& phoneNumber,const string& password);
