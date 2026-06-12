@@ -11,33 +11,34 @@ private:
     string surname;
     string email;
     string phoneNumber;
-    string passwordHash;
+    string password;
 
 public:
-
     //constructor
-    User(string& id, string& name, string& surname, string& email);
+    User(const string& id, const string& name, const string& surname, 
+        const string& email, const string& phoneNumber,const string& password);
     
     // destructor 
     virtual ~User() = default;
+
     
     //UC 11
     void logout();
 
     //UC 3
-    void ERStatusCheck();
+    void checkER();
 
-    //UC
-    void CustomerService();
-
+    //UC 5
+    void customerService();
+    
     // getters
-    std::string getId() const { return id; }
-    std::string getName() const { return name; }
-    std::string getEmail() const { return email; }
+      string getId() const { return id; }
+      string getName() const { return name; }
+      string getEmail() const { return email; }
     
     
     // setters
-    void setEmail(const std::string& newEmail) { email = newEmail; }
+    void setEmail(const   string& newEmail) { email = newEmail; }
 };
 
 #endif
