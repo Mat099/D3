@@ -28,27 +28,35 @@ chcp 65001
 SQLite must be compiled as C, not C++. Compile it separately first:
 
 ```bash
-gcc -c sqlite3.c -o sqlite3.o
+gcc -c data/sqlite3.c -o data/sqlite3.o
 ```
 
 Then compile the rest with G++:
 
-```bash
-g++ -I.h test.cpp .cpp/Doctor.cpp .cpp/Nurse.cpp .cpp/Patient.cpp .cpp/User.cpp \
-    .cpp/Prescription.cpp .cpp/Hospitalization.cpp .cpp/MedicalRecord.cpp \
-    .cpp/Database.cpp .cpp/Appointment.cpp .cpp/Schedule.cpp .cpp/Triage.cpp \
-    .cpp/MedicalStaff.cpp sqlite3.o -o test
+```powershell
+g++ -I.h -Idata test.cpp .cpp/Doctor.cpp .cpp/Nurse.cpp .cpp/Patient.cpp .cpp/User.cpp `
+    .cpp/Prescription.cpp .cpp/Hospitalization.cpp .cpp/MedicalRecord.cpp `
+    .cpp/Database.cpp .cpp/Appointment.cpp .cpp/Schedule.cpp .cpp/Triage.cpp `
+    .cpp/MedicalStaff.cpp data/sqlite3.o -o test
 ```
 
-The `-I.h` flag tells G++ to search the `.h/` directory for headers.
+- `-I.h` tells G++ to search the `.h/` directory for project headers.
+- `-Idata` adds the `data/` folder so `sqlite3.h` (which lives there) is found.
+- The backtick `` ` `` is the PowerShell line-continuation character (`\` is bash-only).
 
 **Step 4 — Run**
+
+```powershell
+./test; if ($?) { "ALL TESTS PASSED" } else { "SOME TESTS FAILED" }
+```
+
+Or simply:
 
 ```powershell
 ./test
 ```
 
-Expected output: four `PASS` lines and a properly formatted medical record display with box-drawing borders.
+Expected output: a formatted medical record display with box-drawing borders followed by three `PASS` lines (`Round-trip check`, `Same-region transfer`, `Cross-region block`).
 
 ---
 

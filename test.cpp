@@ -1,11 +1,13 @@
 #include ".h\Database.h"
 #include <iostream>
+#include <cstdio>
 using namespace std;
 
 int main() {
     // ── Step 1: Init DB ──────────────────────────────────────────────────────
+    remove("data/hospital.db");   // always start from a clean slate
     Database db;
-    if (!db.open("hospital.db")) { cerr << "open failed\n"; return 1; }
+    if (!db.open("data/hospital.db")) { cerr << "open failed\n"; return 1; }
     if (!db.execSchema("data/schema.sql")) { cerr << "schema failed\n"; return 1; }
     if (!db.execSeed("data/seed.sql"))     { cerr << "seed failed\n";   return 1; }
 
@@ -30,7 +32,7 @@ int main() {
 
     // ── Step 4: Round-trip — fresh connection ─────────────────────────────────
     Database db2;
-    db2.open("hospital.db");
+    db2.open("data/hospital.db");
     MedicalRecord rec2 = db2.loadMedicalRecord("USR-0001");
 
     bool found = false;
