@@ -11,9 +11,6 @@ using namespace std;
 class Nurse : public User {
 private:
     string workPass;
-    /*Schedule* schedule;
-    Triage* triage; 
-    Hospitalization* hospitalization; etc*/
 
 public:
     Nurse(const string& id, const string& name, const string& surname, const string& email, 
