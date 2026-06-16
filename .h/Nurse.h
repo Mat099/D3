@@ -23,18 +23,11 @@ public:
     //UC 12
     void changePassword(string& password);
 
-    
-
-    //UC
+    //UC 10
     void viewMedicalRecord(MedicalRecord& record);
 
-    //UC
-    //Triage* modTriage();
-
-    //UC
+    //UC 9
     void viewHospitalization(Hospitalization& hospitalization);
-
-    
     
 };
 
