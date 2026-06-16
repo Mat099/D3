@@ -4,14 +4,14 @@
 #include "User.h"
 #include "MedicalRecord.h"
 #include "Prescription.h"
+#include "Payment.h"
+#include "Appointment.h"
 #include <string>
 using namespace std;
 
 class Patient : public User {
 private:
     string insurance;
-    /*Appointment* appointments;
-    Payment* payments;*/
     MedicalRecord* medicalRecord;
 
 public:
@@ -28,16 +28,11 @@ public:
     //Prescriptions
     void viewPrescription(Prescription& prescription);
 
+    // UC 4
     void makePayment(Payment& payment);
 
-    /*UC 2
-    Appointment* bookAppointment();
-    bool cancelAppointment();
-    Appointment* rescehduleAppointment();
-    Appointment* viewAppointment();
-
-    //UC
-    Payment* makePayment();*/
+// UC 3     
+void bookAppointment(Databse& db);
 
     
     // getters
