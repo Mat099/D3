@@ -15,11 +15,9 @@ private:
     string date;
     string time;
     string status; //pending, comfirmed, cancelled or competed 
+    bool paid;
 
 public:
-    // ─────────────────────────────────────────────
-    // Constructor
-    // ─────────────────────────────────────────────
     Appointment(const string& id,
                 const string& patient,
                 const string& doctor,
@@ -27,36 +25,28 @@ public:
                 const string& time,
                 const string& status = "pending");
 
-    // ─────────────────────────────────────────────
-    // UC 2 core behavior
-    // ─────────────────────────────────────────────
     void confirm(Database& db);
     void cancel(Database& db);
     void reschedule(const string& newDate,
                      const string& newTime,
                      Database& db);
 
-    // ─────────────────────────────────────────────
-    // Display (UI style like your other classes)
-    // ─────────────────────────────────────────────
-    void display() const;
+    void markPaid(Database& db);
 
-    // ─────────────────────────────────────────────
-    // Getters (READ ONLY access)
-    // ─────────────────────────────────────────────
+    void display();
+
     string getAppointmentId() const { return appointmentId; }
     string getPatientId()     const { return patientId; }
     string getDoctorId()      const { return doctorId; }
     string getDate()          const { return date; }
     string getTime()          const { return time; }
     string getStatus()        const { return status; }
+    bool isPaid() const { return paid; }
 
-    // ─────────────────────────────────────────────
-    // Setters (ONLY for controlled updates)
-    // ─────────────────────────────────────────────
     void setDate(const string& d)   { date = d; }
     void setTime(const string& t)   { time = t; }
     void setStatus(const string& s) { status = s; }
+    void setPaid(bool p) { paid = p; }
 };
 
 #endif
