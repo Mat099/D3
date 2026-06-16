@@ -15,7 +15,7 @@ Interactive methods that read from `cin` are exercised by redirecting `cin`
 to a fixed string of input and capturing whatever they print to `cout`, so
 each one gets a real `[PASS]`/`[FAIL]` assertion instead of just "didn't
 crash". The test prints one line per check plus a final `N/M checks passed`
-summary, and exits `0` only if every check passed — currently 108/108.
+summary, and exits `0` only if every check passed — currently 111/111.
 
 Real issues were found and fixed this way:
 - `Doctor::admitPatient`/`Doctor::transferPatient` read free-text
@@ -111,6 +111,16 @@ While wiring this up, two more real bugs surfaced:
   schema/seed initialization on a fresh checkout (every query failed with
   `no such table: users`). Fixed by checking `is_open()` instead.
 
+"View FAQ & Assistance" (UC 5) calls `User::customerService()`, implemented
+in `.cpp/Assistance.cpp` as a real FAQ + assistance-contacts menu (not the
+old no-op stub the name suggests) — `main.cpp` calls it on a throwaway
+`User` instance, since the menu is generic and doesn't use any identity
+fields. `.cpp/User.cpp` used to have its own empty `customerService()`
+body, which collided with `Assistance.cpp`'s real one at link time
+("multiple definition") — removed the stub now that the real implementation
+exists. `Assistance.cpp` needs to be included in every build (`test` and
+`app`) for the same reason.
+
 **Step 1 — Get the SQLite amalgamation**
 
 The project uses SQLite via the [amalgamation](https://www.sqlite.org/amalgamation.html): two files (`sqlite3.c` and `sqlite3.h`) that you place in the project root. They are not included in the repository.
@@ -146,14 +156,14 @@ swap the first argument):
 g++ -I.h -Idata test.cpp .cpp/Doctor.cpp .cpp/Nurse.cpp .cpp/User.cpp `
     .cpp/Prescription.cpp .cpp/Hospitalization.cpp .cpp/MedicalRecord.cpp `
     .cpp/Database.cpp .cpp/Schedule.cpp .cpp/Patient.cpp .cpp/Payment.cpp `
-    .cpp/Appointment.cpp .cpp/Triage.cpp data/sqlite3.o -o test
+    .cpp/Appointment.cpp .cpp/Triage.cpp .cpp/Assistance.cpp data/sqlite3.o -o test
 ```
 
 ```powershell
 g++ -I.h -Idata main.cpp .cpp/Doctor.cpp .cpp/Nurse.cpp .cpp/User.cpp `
     .cpp/Prescription.cpp .cpp/Hospitalization.cpp .cpp/MedicalRecord.cpp `
     .cpp/Database.cpp .cpp/Schedule.cpp .cpp/Patient.cpp .cpp/Payment.cpp `
-    .cpp/Appointment.cpp .cpp/Triage.cpp data/sqlite3.o -o app
+    .cpp/Appointment.cpp .cpp/Triage.cpp .cpp/Assistance.cpp data/sqlite3.o -o app
 ```
 
 - `-I.h` tells G++ to search the `.h/` directory for project headers.

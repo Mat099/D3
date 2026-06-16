@@ -414,9 +414,11 @@ int main() {
                 anon.checkERCrowding(db);
                 break;
             }
-            case 3:
-                cout << "FAQ & Assistance isn't implemented yet in this build.\n";
+            case 3: {
+                User anon("", "", "", "", "", "");   // UC 5 — generic, no identity needed
+                anon.customerService();
                 break;
+            }
             case 0:
                 cout << "Goodbye!\n";
                 db.close();

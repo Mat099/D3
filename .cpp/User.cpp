@@ -41,7 +41,4 @@ void User::checkER(){
 
 }
 
-//UC 5
-void User::customerService(){
-
-}
+// UC 5: customerService() — see Assistance.cpp for the implementation.

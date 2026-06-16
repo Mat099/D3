@@ -90,11 +90,24 @@ int main() {
         out = runIO("x", [&]{ plain.logout(); });
         check(out.find("Invalid choice") != string::npos, "User::logout() rejects garbage input");
 
-        // checkER() / customerService() are intentionally empty stubs — calling
-        // them just confirms they're linkable and don't crash.
+        // checkER() is an intentionally empty stub — just confirm it's linkable.
         plain.checkER();
-        plain.customerService();
-        check(true, "User::checkER() / User::customerService() are callable (empty stubs)");
+        check(true, "User::checkER() is callable (empty stub)");
+
+        // customerService() (UC 5, implemented in Assistance.cpp) is a real
+        // FAQ/assistance menu, not a stub — exercise its actual flows.
+        out = runIO("1\n2\n1\ny\n", [&]{ plain.customerService(); });
+        check(out.find("What payment methods are accepted") != string::npos &&
+              out.find("Glad we could help") != string::npos,
+              "User::customerService() FAQ flow finds and answers a question");
+
+        out = runIO("2", [&]{ plain.customerService(); });
+        check(out.find("assistance@hospitalapp.it") != string::npos,
+              "User::customerService() shows assistance contacts");
+
+        out = runIO("3", [&]{ plain.customerService(); });
+        check(out.find("Returning to main menu") != string::npos,
+              "User::customerService() honors the cancel option");
     }
 
     cout << "\n=== PART 3: Doctor ===\n";
