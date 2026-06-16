@@ -112,6 +112,10 @@ void Patient::makePayment(Appointment& appointment, Payment& payment, Database& 
         return;
     }
 
+     payment.setPatientId(appointment.getPatientId());
+     payment.setAppointmentId(appointment.getAppointmentId());
+
+
      if(option == 1)
     {
         cout << "╔══════════════════════════════════════════════════╗" << endl;
@@ -144,9 +148,17 @@ void Patient::makePayment(Appointment& appointment, Payment& payment, Database& 
 
         payment.setStatus("paid");
       
-        db.updatePaymentStatus(payment.getPaymentId(), "paid");
+        db.insertPayment(
+            payment.getPaymentId(),
+            payment.getAppointmentId(),
+            payment.getPatientId(),
+            payment.getAmount(),
+            "online",
+            payment.getStatus()
+        );
 
         appointment.setPaid(true);
+        appointment.setStatus("confirmed");
         appointment.confirm(db);
 
         cout << "╔══════════════════════════════════════════════════╗" << endl;
@@ -165,7 +177,7 @@ void Patient::makePayment(Appointment& appointment, Payment& payment, Database& 
             payment.getPatientId(),
             payment.getAmount(),
             "cash",
-            "pending"
+            payment.getStatus()
         );
 
         appointment.setPaid(false);
