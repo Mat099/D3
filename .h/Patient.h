@@ -28,6 +28,8 @@ public:
     //Prescriptions
     void viewPrescription(Prescription& prescription);
 
+    void makePayment(Payment& payment);
+
     /*UC 2
     Appointment* bookAppointment();
     bool cancelAppointment();
