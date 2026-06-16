@@ -22,9 +22,6 @@ public:
     // UC1
     bool workLogin(string& workPass, string& password, string& name);
 
-    // UC 6
-    void manageAvailability(Database& db);
-
     // UC12
     void changePassword(string& password);
 
