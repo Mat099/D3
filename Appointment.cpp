@@ -16,7 +16,7 @@ Appointment::Appointment(const string& id,
     this->doctorId = doctor;
     this->date = date;
     this->time = time;
-    this->status = status
+    this->status = status;
     this->paid = false;
 }
 
