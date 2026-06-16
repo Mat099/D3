@@ -13,7 +13,6 @@ Nurse::Nurse(const string& id,
             const string& phoneNumber, 
             const string& password)
     : User(id, name, surname, email, phoneNumber, password) {
-    //appointments(nullptr), medicalRecord(nullptr) etc
 }
 
 void Nurse::workLogin(string& workPass, string& password, string& name) {
