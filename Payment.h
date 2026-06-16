@@ -13,7 +13,7 @@ private:
 
     double amount;
     string paymentMethod;
-    string status;
+    string status; // pending paid or failed 
 
 public:
      Payment(const string& paymentId,
@@ -29,7 +29,6 @@ public:
 
     void cancel(Database& db);
 
-    // getters
 
     string getPaymentId() const { return paymentId; }
     string getAppointmentId() const { return appointmentId; }
