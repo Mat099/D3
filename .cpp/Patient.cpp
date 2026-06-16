@@ -147,7 +147,6 @@ void Patient::makePayment(Appointment& appointment, Payment& payment, Database& 
         db.updatePaymentStatus(payment.getPaymentId(), "paid");
 
         appointment.setPaid(true);
-        appointment.setStatus("confirmed");
         appointment.confirm(db);
 
         cout << "╔══════════════════════════════════════════════════╗" << endl;
