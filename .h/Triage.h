@@ -13,20 +13,24 @@ private:
     string patientId;
     string hospitalName;
     string code;        // "Red" | "Orange" | "Azure" | "Green" | "White"
+    string diagnosis;
     string admittedAt; // timestamp
     bool   discharged;
     string dischargedAt; // timestamp; empty while still in ER
- 
+
 public:
-    // Default constructor
+    // Default constructor — also the "not found" sentinel (empty triageId)
     Triage() : discharged(false) {}
- 
+
     Triage(const string& triageId,
            const string& patientId,
            const string& hospitalName,
            const string& code,
-           const string& admittedAt);
- 
+           const string& diagnosis,
+           const string& admittedAt,
+           bool discharged = false,
+           const string& dischargedAt = "");
+
     // getters
     string getTriageId() const;
     string getPatientId() const;

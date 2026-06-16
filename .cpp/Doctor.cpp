@@ -1,9 +1,12 @@
 #include "User.h"
 #include "Doctor.h"
 #include "Database.h"
+#include "Schedule.h"
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <limits>
+#include <vector>
 using namespace std;
 
 
@@ -17,7 +20,7 @@ Doctor::Doctor(const string& id,
     : User(id, name, surname, email, phoneNumber, password), specialization(specialization) {
 }
 
-void Doctor::workLogin(string& workPass, string &password, string& name) {
+bool Doctor::workLogin(string& workPass, string &password, string& name) {
     cout << "╔══════════════════════════════════════════════════╗" << endl;
     cout << "║  Please enter your work credentials:             ║" << endl;
     cout << "║                                                  ║" << endl;
@@ -33,12 +36,13 @@ void Doctor::workLogin(string& workPass, string &password, string& name) {
         cout << "╔═════════════════════════════════════════════════╗" << endl;
         cout << "║  Invalid credentials. Please try again.         ║" << endl;
         cout << "╚═════════════════════════════════════════════════╝" << endl;
+        return false;
     }
-              
-    else{
+    else {
         cout << "╔═════════════════════════════════════════════════╗" << endl;
         cout << "║  Login successful! Welcome, " << name << "!     ║" << endl;
         cout << "╚═════════════════════════════════════════════════╝" << endl;
+        return true;
     }
 }
 
@@ -110,72 +114,6 @@ void Doctor::viewMedicalRecord(MedicalRecord& record) {
     cout << "╚══════════════════════════════════════════════════╝" << endl;
 }
 
-void Doctor::updateMedicalRecord(MedicalRecord& record) {
-    cout << "╔══════════════════════════════════════════════════╗" << endl;
-    cout << "║  Update Medical Record                           ║" << endl;
-    cout << "║                                                  ║" << endl;
-    cout << "║  Current diagnosis: " << record.getDiagnosis()  << endl;
-    cout << "║  New diagnosis:                                  ║" << endl;
-    cout << "╚══════════════════════════════════════════════════╝" << endl;
-
-    string newDiagnosis;
-    cin >> newDiagnosis;
-    record.setDiagnosis(newDiagnosis);
-
-    cout << "╔══════════════════════════════════════════════════╗" << endl;
-    cout << "║  Current notes: " << record.getNotes()           << endl;
-    cout << "║  New notes:                                      ║" << endl;
-    cout << "╚══════════════════════════════════════════════════╝" << endl;
-
-    string newNotes;
-    cin >> newNotes;
-    record.setNotes(newNotes);
-
-    cout << "╔═════════════════════════════════════════════════╗" << endl;
-    cout << "║  Medical record updated successfully.           ║" << endl;
-    cout << "╚═════════════════════════════════════════════════╝" << endl;
-}
-
-void Doctor::issuePrescription(Prescription& prescription) {
-    cout << "╔══════════════════════════════════════════════════╗" << endl;
-    cout << "║  Issue Prescription                              ║" << endl;
-    cout << "║                                                  ║" << endl;
-    cout << "║  Medication:                                     ║" << endl;
-    cout << "╚══════════════════════════════════════════════════╝" << endl;
-
-    string medication;
-    cin >> medication;
-    prescription.setMedication(medication);
-
-    cout << "╔══════════════════════════════════════════════════╗" << endl;
-    cout << "║  Dosage (e.g. 500mg):                            ║" << endl;
-    cout << "╚══════════════════════════════════════════════════╝" << endl;
-
-    string dosage;
-    cin >> dosage;
-    prescription.setDosage(dosage);
-
-    cout << "╔══════════════════════════════════════════════════╗" << endl;
-    cout << "║  Frequency (e.g. twice_daily):                   ║" << endl;
-    cout << "╚══════════════════════════════════════════════════╝" << endl;
-
-    string frequency;
-    cin >> frequency;
-    prescription.setFrequency(frequency);
-
-    cout << "╔══════════════════════════════════════════════════╗" << endl;
-    cout << "║  Duration (e.g. 7_days):                         ║" << endl;
-    cout << "╚══════════════════════════════════════════════════╝" << endl;
-
-    string duration;
-    cin >> duration;
-    prescription.setDuration(duration);
-
-    cout << "╔═════════════════════════════════════════════════╗" << endl;
-    cout << "║  Prescription issued successfully.              ║" << endl;
-    cout << "╚═════════════════════════════════════════════════╝" << endl;
-}
-
 void Doctor::viewPrescription(Prescription& prescription) {
     cout << "╔══════════════════════════════════════════════════╗" << endl;
     cout << "║  Prescription                                    ║" << endl;
@@ -189,79 +127,6 @@ void Doctor::viewPrescription(Prescription& prescription) {
     cout << "║  Issued:     " << prescription.getIssueDate()      << endl;
     cout << "╚══════════════════════════════════════════════════╝" << endl;
 }
-
-void Doctor::admitPatient(Hospitalization& hospitalization) {
-    cout << "╔══════════════════════════════════════════════════╗" << endl;
-    cout << "║  Admit Patient                                   ║" << endl;
-    cout << "║                                                  ║" << endl;
-    cout << "║  Room number:                                    ║" << endl;
-    cout << "╚══════════════════════════════════════════════════╝" << endl;
-
-    string room;
-    cin >> room;
-    hospitalization.setRoom(room);
-
-    cout << "╔══════════════════════════════════════════════════╗" << endl;
-    cout << "║  Reason for admission:                           ║" << endl;
-    cout << "╚══════════════════════════════════════════════════╝" << endl;
-
-    string reason;
-    cin >> reason;
-    hospitalization.setReason(reason);
-
-    hospitalization.setActive(true);
-
-    cout << "╔═════════════════════════════════════════════════╗" << endl;
-    cout << "║  Patient admitted successfully.                 ║" << endl;
-    cout << "╚═════════════════════════════════════════════════╝" << endl;
-}
-
-void Doctor::dischargePatient(Hospitalization& hospitalization) {
-    cout << "╔══════════════════════════════════════════════════╗" << endl;
-    cout << "║  Discharge Patient                               ║" << endl;
-    cout << "║  Patient ID: " << hospitalization.getPatientId()   << endl;
-    cout << "║                                                  ║" << endl;
-    cout << "║  Confirm discharge? (y/n):                       ║" << endl;
-    cout << "╚══════════════════════════════════════════════════╝" << endl;
-
-    char choice;
-    cin >> choice;
-
-    if (choice == 'y' || choice == 'Y') {
-        cout << "╔══════════════════════════════════════════════════╗" << endl;
-        cout << "║  Enter discharge date (YYYY-MM-DD):              ║" << endl;
-        cout << "╚══════════════════════════════════════════════════╝" << endl;
-
-        string dischargeDate;
-        cin >> dischargeDate;
-        hospitalization.setDischargeDate(dischargeDate);
-        hospitalization.setActive(false);
-
-        cout << "╔═════════════════════════════════════════════════╗" << endl;
-        cout << "║  Patient discharged successfully.               ║" << endl;
-        cout << "╚═════════════════════════════════════════════════╝" << endl;
-    }
-    else {
-        cout << "╔═════════════════════════════════════════════════╗" << endl;
-        cout << "║  Discharge cancelled.                           ║" << endl;
-        cout << "╚═════════════════════════════════════════════════╝" << endl;
-    }
-}
-
-void Doctor::viewHospitalization(Hospitalization& hospitalization) {
-    cout << "╔══════════════════════════════════════════════════╗" << endl;
-    cout << "║  Hospitalization Record                          ║" << endl;
-    cout << "║                                                  ║" << endl;
-    cout << "║  ID:        " << hospitalization.getHospitalizationId() << endl;
-    cout << "║  Patient:   " << hospitalization.getPatientId()         << endl;
-    cout << "║  Room:      " << hospitalization.getRoom()               << endl;
-    cout << "║  Reason:    " << hospitalization.getReason()             << endl;
-    cout << "║  Admitted:  " << hospitalization.getAdmissionDate()      << endl;
-    cout << "║  Status:    " << (hospitalization.isActive() ? "Active" : "Discharged on " + hospitalization.getDischargeDate()) << endl;
-    cout << "╚══════════════════════════════════════════════════╝" << endl;
-}
-
-// ── DB-aware methods ─────────────────────────────────────────────────────────
 
 MedicalRecord Doctor::loadPatientRecord(Database& db) {
     cout << "╔══════════════════════════════════════════════════╗" << endl;
@@ -282,6 +147,35 @@ MedicalRecord Doctor::loadPatientRecord(Database& db) {
     }
     rec.display();
     return rec;
+}
+
+void Doctor::updateMedicalRecord(MedicalRecord& record, Database& db) {
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║  Update Medical Record                           ║" << endl;
+    cout << "║                                                  ║" << endl;
+    cout << "║  Current diagnosis: " << record.getDiagnosis()  << endl;
+    cout << "║  New diagnosis:                                  ║" << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+
+    string newDiagnosis;
+    cin >> newDiagnosis;
+
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║  Current notes: " << record.getNotes()           << endl;
+    cout << "║  New notes:                                      ║" << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+
+    string newNotes;
+    cin >> newNotes;
+
+    bool ok = record.updateDiagnosisAndNotes(newDiagnosis, newNotes, db);
+
+    cout << "╔═════════════════════════════════════════════════╗" << endl;
+    if (ok)
+        cout << "║  Medical record updated successfully.           ║" << endl;
+    else
+        cout << "║  Failed to persist medical record update.       ║" << endl;
+    cout << "╚═════════════════════════════════════════════════╝" << endl;
 }
 
 void Doctor::issuePrescription(MedicalRecord& record, Database& db) {
@@ -386,14 +280,14 @@ void Doctor::admitPatient(MedicalRecord& record, Database& db) {
     cout << "╚══════════════════════════════════════════════════╝" << endl;
 
     string department;
-    cin >> department;
+    getline(cin, department);
 
     cout << "╔══════════════════════════════════════════════════╗" << endl;
     cout << "║  Hospital name:                                  ║" << endl;
     cout << "╚══════════════════════════════════════════════════╝" << endl;
 
     string hospitalName;
-    cin >> hospitalName;
+    getline(cin, hospitalName);
 
     cout << "╔══════════════════════════════════════════════════╗" << endl;
     cout << "║  Bed ID (e.g. BED-301):                          ║" << endl;
@@ -413,10 +307,13 @@ void Doctor::admitPatient(MedicalRecord& record, Database& db) {
     Hospitalization h(newId, record.getRecordId(), record.getPatientId(),
                       department, hospitalName, bedId, admissionDate,
                       "", false, getId(), Database::currentTimestamp());
-    record.addHospitalization(h, db);
+    bool ok = record.addHospitalization(h, db);
 
     cout << "╔══════════════════════════════════════════════════╗" << endl;
-    cout << "║  Patient admitted: " << newId                    << endl;
+    if (ok)
+        cout << "║  Patient admitted: " << newId                    << endl;
+    else
+        cout << "║  Admission failed: unknown hospital '" << hospitalName << "'." << endl;
     cout << "╚══════════════════════════════════════════════════╝" << endl;
 }
 
@@ -440,15 +337,16 @@ void Doctor::transferPatient(MedicalRecord& record, Database& db) {
     cout << "║  New department:                                 ║" << endl;
     cout << "╚══════════════════════════════════════════════════╝" << endl;
 
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
     string newDept;
-    cin >> newDept;
+    getline(cin, newDept);
 
     cout << "╔══════════════════════════════════════════════════╗" << endl;
     cout << "║  New hospital name:                              ║" << endl;
     cout << "╚══════════════════════════════════════════════════╝" << endl;
 
     string newHospital;
-    cin >> newHospital;
+    getline(cin, newHospital);
 
     cout << "╔══════════════════════════════════════════════════╗" << endl;
     cout << "║  New bed ID:                                     ║" << endl;

@@ -22,35 +22,26 @@ public:
            const string& specialization, const string& password);
 
     // UC1
-    void workLogin(string& workPass, string& password, string& name);
-
-    // UC 6
-    void manageAvailability(Database& db);
+    bool workLogin(string& workPass, string& password, string& name);
 
     // UC12
     void changePassword(string& password);
 
     // Medical Records
     void viewMedicalRecord(MedicalRecord& record);
-    void updateMedicalRecord(MedicalRecord& record);
 
-    // Prescriptions
-    void issuePrescription(Prescription& prescription);
     void viewPrescription(Prescription& prescription);
-
-    // Hospitalization
-    void admitPatient(Hospitalization& hospitalization);
-    void dischargePatient(Hospitalization& hospitalization);
-    void viewHospitalization(Hospitalization& hospitalization);
 
     // DB-aware methods
     MedicalRecord loadPatientRecord(Database& db);
+    void updateMedicalRecord(MedicalRecord& record, Database& db);
     void issuePrescription(MedicalRecord& record, Database& db);
     void cancelPrescription(MedicalRecord& record, Database& db);
     void updatePrescriptionDosage(MedicalRecord& record, Database& db);
     void admitPatient(MedicalRecord& record, Database& db);
     void transferPatient(MedicalRecord& record, Database& db);
     void dischargePatient(MedicalRecord& record, Database& db);
+    void manageAvailability(Database& db);
 
     // getters
     string getSpecialization() const { return specialization; }

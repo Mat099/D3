@@ -1,28 +1,89 @@
 #include "Appointment.h"
+#include "Database.h"
 #include <iostream>
 
 using namespace std;
 
-Appointment::Appointment(string id,
-                         string patient,
-                         string doctor,
-                         string date,
-                         string time)
+Appointment::Appointment(const string& id,
+                         const string& patient,
+                         const string& doctor,
+                         const string& date,
+                         const string& time,
+                         const string& status)
+    : appointmentId(id),
+      patientId(patient),
+      doctorId(doctor),
+      date(date),
+      time(time),
+      status(status),
+      paid(false)
 {
-    appointmentId = id;
-    patientId = patient;
-    doctorId = doctor;
-    this->date = date;
-    this->time = time;
-    status = "Booked";
+}
+
+void Appointment::confirm(Database& db)
+{
+    status = "confirmed";
+
+    db.updateAppointmentStatus(appointmentId, status, Database::currentTimestamp());
+
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║  Appointment confirmed successfully!             ║" << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+}
+
+void Appointment::cancel(Database& db)
+{
+    status = "cancelled";
+
+    db.updateAppointmentStatus(appointmentId, status, Database::currentTimestamp());
+
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║  Appointment cancelled.                          ║" << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+}
+
+void Appointment::reschedule(const string& newDate,
+                             const string& newTime,
+                             Database& db)
+{
+    date = newDate;
+    time = newTime;
+
+    db.updateAppointmentSchedule(
+      appointmentId, 
+      newDate, 
+      newTime,
+      Database::currentTimestamp()
+      );
+
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║  Appointment rescheduled successfully!           ║" << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+}
+
+void Appointment::markPaid(Database& db)
+{
+    paid = true;
+
+    db.updateAppointmentPaymentStatus(appointmentId, true);
+
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║  Payment marked as completed                     ║" << endl;
+    cout << "║  Appointment is now confirmed                    ║" << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
 }
 
 void Appointment::display()
 {
-    cout << "Appointment ID: " << appointmentId << endl;
-    cout << "Patient ID: " << patientId << endl;
-    cout << "Doctor ID: " << doctorId << endl;
-    cout << "Date: " << date << endl;
-    cout << "Time: " << time << endl;
-    cout << "Status: " << status << endl;
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║  Appointment                                     ║" << endl;
+    cout << "║                                                  ║" << endl;
+    cout << "║  ID:       " << appointmentId << endl;
+    cout << "║  Patient:  " << patientId << endl;
+    cout << "║  Doctor:   " << doctorId << endl;
+    cout << "║  Date:     " << date << endl;
+    cout << "║  Time:     " << time << endl;
+    cout << "║  Status:   " << status << endl;
+    cout << "║  Paid:     " << (paid ? "YES" : "NO") << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
 }

@@ -2,6 +2,7 @@
 #include "Database.h"
 #include <iostream>
 #include <string>
+#include <limits>
 using namespace std;
  
 // Triage codes (UC 8 / UC 3)
@@ -13,17 +14,21 @@ Triage::Triage(const string& triageId,
                const string& patientId,
                const string& hospitalName,
                const string& code,
-               const string& admittedAt)
+               const string& diagnosis,
+               const string& admittedAt,
+               bool discharged,
+               const string& dischargedAt)
     : triageId(triageId), patientId(patientId), hospitalName(hospitalName),
-      code(code), admittedAt(admittedAt),
-      discharged(false), dischargedAt("") {}
- 
-// Getters 
- 
+      code(code), diagnosis(diagnosis), admittedAt(admittedAt),
+      discharged(discharged), dischargedAt(dischargedAt) {}
+
+// Getters
+
 string Triage::getTriageId()    const { return triageId;    }
 string Triage::getPatientId()   const { return patientId;   }
 string Triage::getHospitalName()const { return hospitalName;}
 string Triage::getCode()        const { return code;        }
+string Triage::getDiagnosis()   const { return diagnosis;   }
 string Triage::getAdmittedAt()  const { return admittedAt;  }
 bool   Triage::isDischarged()   const { return discharged;  }
 string Triage::getDischargedAt()const { return dischargedAt;}
@@ -47,13 +52,17 @@ void Triage::admitPatient(Database& db) {
  
     string pId;
     cin >> pId;
- 
+
     cout << "╔══════════════════════════════════════════════════╗" << endl;
     cout << "║  Hospital name:                                  ║" << endl;
     cout << "╚══════════════════════════════════════════════════╝" << endl;
- 
+
+    // Hospital names are multi-word (e.g. "Ospedale Santa Chiara") and must
+    // match a row in `hospitals` exactly (FK) — read with getline, not
+    // cin >>, which would truncate at the first space.
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
     string hosp;
-    cin >> hosp;
+    getline(cin, hosp);
  
     cout << "╔══════════════════════════════════════════════════╗" << endl;
     cout << "║  Triage code:                                    ║" << endl;
@@ -80,11 +89,19 @@ void Triage::admitPatient(Database& db) {
             cout << "╚═════════════════════════════════════════════════╝" << endl;
             return;
     }
- 
+
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║  Diagnosis / presenting complaint:               ║" << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    string diag;
+    getline(cin, diag);
+
     cout << "╔══════════════════════════════════════════════════╗" << endl;
     cout << "║  Confirm admission? (y/n):                       ║" << endl;
     cout << "╚══════════════════════════════════════════════════╝" << endl;
- 
+
     char confirm;
     cin >> confirm;
     if (confirm != 'y' && confirm != 'Y') {
@@ -93,22 +110,23 @@ void Triage::admitPatient(Database& db) {
         cout << "╚═════════════════════════════════════════════════╝" << endl;
         return;
     }
- 
+
     string ts    = Database::currentTimestamp();
     string newId = db.generateNextId("triage", "triage_id", "TRG");
- 
+
     if (!db.insertTriageRecord(newId, pId, hosp, triageCode, diag, ts)) {
         cout << "╔═════════════════════════════════════════════════╗" << endl;
         cout << "║  System error: admission could not be saved.    ║" << endl;
         cout << "╚═════════════════════════════════════════════════╝" << endl;
         return;
     }
- 
+
     // Update this object's state to reflect the newly admitted patient
     triageId    = newId;
     patientId   = pId;
     hospitalName= hosp;
     code        = triageCode;
+    diagnosis   = diag;
     admittedAt  = ts;
     discharged  = false;
     dischargedAt= "";
@@ -275,10 +293,10 @@ void Triage::checkERCrowding(Database& db) {
     cout << "║  E.R. Line Check                                 ║" << endl;
     cout << "║  Select a hospital:                              ║" << endl;
     cout << "╚══════════════════════════════════════════════════╝" << endl;
- 
+
     string hosp;
-    cin >> hosp;
- 
+    getline(cin, hosp);
+
     vector<Triage> patients = db.loadActiveTriageByHospital(hosp);
  
     if (patients.empty()) {

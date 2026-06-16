@@ -18,7 +18,7 @@ public:
 
     
     //UC1
-    void workLogin(string& workPass, string &password, string& name);
+    bool workLogin(string& workPass, string &password, string& name);
 
     //UC 12
     void changePassword(string& password);

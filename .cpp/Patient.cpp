@@ -2,8 +2,11 @@
 #include "Patient.h"
 #include "Payment.h"
 #include "Database.h"
+#include "Appointment.h"
+#include "Schedule.h"
 #include <iostream>
 #include <string>
+#include <vector>
 using namespace std;
 
 
@@ -18,7 +21,7 @@ Patient::Patient(const string& id,
     //appointments(nullptr), payments(nullptr), medicalRecord(nullptr)
 }
 
-void Patient::login(string& email, string &password, string& name) {
+bool Patient::login(string& email, string &password, string& name) {
     cout << "╔══════════════════════════════════════════════════╗" << endl;
     cout << "║  1. Login with CIE                               ║" << endl;
     cout << "║  2. Login with SPID                              ║" << endl;
@@ -56,13 +59,13 @@ void Patient::login(string& email, string &password, string& name) {
         cout << "╔═════════════════════════════════════════════════╗" << endl;
         cout << "║  Invalid credentials. Please try again.         ║" << endl;
         cout << "╚═════════════════════════════════════════════════╝" << endl;
+        return false;
     }else{
         cout << "╔═════════════════════════════════════════════════╗" << endl;
         cout << "║  Login successful! Welcome, " << name << "!     ║" << endl;
         cout << "╚═════════════════════════════════════════════════╝" << endl;
+        return true;
     }
-
-    
 }
 
 void Patient::viewMedicalRecord(MedicalRecord& record) {
@@ -338,4 +341,3 @@ void Patient::bookAppointment(Database& db){
     cout << "╚══════════════════════════════════════════════════╝" << endl;
 
 }
-
