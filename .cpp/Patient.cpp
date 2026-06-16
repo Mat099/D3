@@ -153,4 +153,152 @@ void Patient::makePayment(Payment& payment) {
         cout << "╚══════════════════════════════════════════════════╝" << endl;
     }
 }
-     
+
+void Patient::bookAppointment(Appointment& appointment){
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║  Appointment Booking                             ║" << endl;
+    cout << "║                                                  ║" << endl;
+    cout << "║  Search appointment by:                          ║" << endl;
+    cout << "║  1. Date and Time                                ║" << endl;
+    cout << "║  2. Facility                                     ║" << endl;
+    cout << "║  3. Doctor                                       ║" << endl;
+    cout << "║  0. Cancel                                       ║" << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+
+    int choice;
+    cin>> choice;
+
+    if(choice == 0)
+    {
+        cout << "╔══════════════════════════════════════════════════╗" << endl;
+        cout << "║  Appointment booking cancelled.                  ║" << endl;
+        cout << "╚══════════════════════════════════════════════════╝" << endl;
+        return;
+    }
+
+    string date, hospital, doctorId;
+    cin.ignore();
+  
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║  Enter search criteria:                          ║" << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+
+    if (choice == 1)
+    {
+        cout << "╔══════════════════════════════════════════════════╗" << endl;
+        cout << "║  Enter date (YYYY-MM-DD):                        ║" << endl;
+        cout << "╚══════════════════════════════════════════════════╝" << endl;
+        getline(cin, date);
+    }
+    else if (choice == 2)
+    {
+        cout << "╔══════════════════════════════════════════════════╗" << endl;
+        cout << "║  Enter hospital name:                            ║" << endl;
+        cout << "╚══════════════════════════════════════════════════╝" << endl; 
+        getline(cin, hospital);
+    }
+    else if (choice == 3)
+    {
+        cout << "╔══════════════════════════════════════════════════╗" << endl;
+        cout << "║  Enter doctor ID:                                ║" << endl;
+        cout << "╚══════════════════════════════════════════════════╝" << endl;
+        getline(cin, doctorId);
+    }
+    else
+    {
+        cout << "╔══════════════════════════════════════════════════╗" << endl;
+        cout << "║  Invalid selection.                             ║" << endl;
+        cout << "╚══════════════════════════════════════════════════╝" << endl;
+        return;
+    }
+
+   vector<Schedule> slots = db.searchAvailableSlots(date, hospital, doctorId);
+
+    if (slots.empty())
+    {
+        cout << "╔══════════════════════════════════════════════════╗" << endl;
+        cout << "║  No available slots found.                      ║" << endl;
+        cout << "║  Please try different criteria.                ║" << endl;
+        cout << "╚══════════════════════════════════════════════════╝" << endl;
+        return;
+    }
+
+
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║              AVAILABLE SLOTS                     ║" << endl;
+    cout << "╠══════════════════════════════════════════════════╣" << endl;
+
+    for (size_t i = 0; i < slots.size(); i++)
+    {
+        cout << "║  " << (i + 1)
+             << ". Doctor: " << slots[i].getDoctorId()
+             << " | " << slots[i].getDate()
+             << " " << slots[i].getTimeSlot();
+
+        cout << string(8, ' ') << "║" << endl;
+    }
+
+    cout << "║  0. Cancel                                       ║" << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+  
+    int slotChoice;
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║  Select slot:                                    ║" << endl;
+    cout << "╠══════════════════════════════════════════════════╣" << endl;
+
+    cin >> slotChoice;
+
+    if(slotChoice == 0)
+    {
+        cout << "╔══════════════════════════════════════════════════╗" << endl;
+        cout << "║  Appointment booking cancelled.                  ║" << endl;
+        cout << "╚══════════════════════════════════════════════════╝" << endl;
+        return;
+    }
+
+    if (slotChoice < 1 || slotChoice > (int)slots.size()){
+        cout << "╔══════════════════════════════════════════════════╗" << endl;
+        cout << "║  Invalid slot selection.                         ║" << endl;
+        cout << "╚══════════════════════════════════════════════════╝" << endl;
+        return;
+    }
+
+    Schedule selected = slots[slotChoice - 1];
+
+    Appointment appointment(
+        db.generateNextId("appointments", "appointment_id", "APT"),
+        this->getId(),
+        selected.getDoctorId(),
+        selected.getDate(),
+        selected.getTimeSlot()
+    );
+
+    appointment.setStatus("confirmed");
+
+    db.insertAppointment(
+        appointment.getAppointmentId(),
+        this->getId(),
+        selected.getDoctorId(),
+        selected.getDate(),
+        selected.getTimeSlot()
+    );
+
+    db.updateScheduleAvailability(selected.getSlotId(), false);
+  
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║             APPOINTMENT CONFIRMED                ║" << endl;
+    cout << "╠══════════════════════════════════════════════════╣" << endl;
+
+    cout << "║  Date:   " << selected.getDate();
+    cout << string(29 - selected.getDate().length(), ' ') << "║" << endl;
+
+    cout << "║  Time:   " << selected.getTimeSlot();
+    cout << string(29 - selected.getTimeSlot().length(), ' ') << "║" << endl;
+
+    cout << "║  Doctor: " << selected.getDoctorId();
+    cout << string(29 - selected.getDoctorId().length(), ' ') << "║" << endl;
+
+    cout << "║  Status: CONFIRMED                           ║" << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+}
+
