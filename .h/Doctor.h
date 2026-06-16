@@ -5,14 +5,16 @@
 #include "MedicalRecord.h"
 #include "Prescription.h"
 #include "Hospitalization.h"
+#include "Databse.h"
 #include <string>
 using namespace std;
 
 class Database;
 
 class Doctor : public User {
-private:
+protected:
     string specialization;
+    string workPass;
 
 public:
     Doctor(const string& id, const string& name, const string& surname,

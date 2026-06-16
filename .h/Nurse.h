@@ -9,7 +9,7 @@
 using namespace std;
 
 class Nurse : public User {
-private:
+protected:
     string workPass;
 
 public:

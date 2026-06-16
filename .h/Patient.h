@@ -12,8 +12,6 @@ using namespace std;
 class Patient : public User {
 private:
     string insurance;
-    /*Appointment* appointments;
-    Payment* payments;*/
     MedicalRecord* medicalRecord;
 
 public:
@@ -33,10 +31,6 @@ public:
 
     //UC 2
     void bookAppointment(Database& db);
-    //bool cancelAppointment();
-    //Appointment* rescehduleAppointment();
-    //Appointment* viewAppointment();
-
     //UC
     void makePayment(Appointment& appointment, Payment& payment, Database& db);
 
