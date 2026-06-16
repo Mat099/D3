@@ -5,6 +5,7 @@
 #include "MedicalRecord.h"
 #include "Prescription.h"
 #include "Hospitalization.h"
+#include "Databse.h"
 #include <string>
 using namespace std;
 
