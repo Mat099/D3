@@ -302,9 +302,8 @@ void Patient::bookAppointment(Database& db){
         selected.getDoctorId(),
         selected.getDate(),
         selected.getTimeSlot()
+        "pending"
     );
-
-    appointment.setStatus("pending");
 
     db.insertAppointment(
         newAppointment.getAppointmentId(),
