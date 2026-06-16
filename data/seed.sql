@@ -44,12 +44,23 @@ INSERT INTO medical_staff (staff_id, workpass_id) VALUES
 
 
 -- =============================================================================
+-- HOSPITALS
+-- Seeded before DOCTORS — doctors.hospital_name now references this table.
+-- =============================================================================
+
+INSERT INTO hospitals (hospital_name, region) VALUES
+    ('Ospedale Santa Chiara', 'Trentino-Alto Adige'),
+    ('Ospedale Villa Igea',   'Trentino-Alto Adige'),
+    ('Ospedale San Raffaele', 'Lombardia');
+
+
+-- =============================================================================
 -- DOCTORS
 -- =============================================================================
 
-INSERT INTO doctors (doctor_id, specialization) VALUES
-    ('USR-0004', 'Cardiology'),
-    ('USR-0005', 'General Medicine');
+INSERT INTO doctors (doctor_id, specialization, hospital_name) VALUES
+    ('USR-0004', 'Cardiology',       'Ospedale Santa Chiara'),
+    ('USR-0005', 'General Medicine', 'Ospedale Santa Chiara');
 
 
 -- =============================================================================
@@ -58,16 +69,6 @@ INSERT INTO doctors (doctor_id, specialization) VALUES
 
 INSERT INTO nurses (nurse_id) VALUES
     ('USR-0006');
-
-
--- =============================================================================
--- HOSPITALS
--- =============================================================================
-
-INSERT INTO hospitals (hospital_name, region) VALUES
-    ('Ospedale Santa Chiara', 'Trentino-Alto Adige'),
-    ('Ospedale Villa Igea',   'Trentino-Alto Adige'),
-    ('Ospedale San Raffaele', 'Lombardia');
 
 
 -- =============================================================================
@@ -150,8 +151,8 @@ INSERT INTO schedules (slot_id, doctor_id, date, time_slot, available) VALUES
 -- TRIAGE
 -- =============================================================================
 
-INSERT INTO triage (triage_id, patient_id, code, diagnosis, admitted_at, discharged) VALUES
-    ('TRG-0001', 'USR-0003', 'red',    'Severe chest pain, suspected MI',    '2024-11-15 02:30', 0),
-    ('TRG-0002', 'USR-0001', 'orange', 'High fever, breathing difficulties', '2024-11-15 08:45', 0),
-    ('TRG-0003', 'USR-0002', 'green',  'Minor laceration on left hand',      '2024-11-15 11:00', 1),
-    ('TRG-0004', 'USR-0003', 'white',  'Routine check-up request',           '2024-11-14 16:20', 1);
+INSERT INTO triage (triage_id, patient_id, hospital_name, code, diagnosis, admitted_at, discharged, discharged_at) VALUES
+    ('TRG-0001', 'USR-0003', 'Ospedale Santa Chiara', 'Red',    'Severe chest pain, suspected MI',    '2024-11-15 02:30', 0, NULL),
+    ('TRG-0002', 'USR-0001', 'Ospedale Santa Chiara', 'Orange', 'High fever, breathing difficulties', '2024-11-15 08:45', 0, NULL),
+    ('TRG-0003', 'USR-0002', 'Ospedale Villa Igea',   'Green',  'Minor laceration on left hand',      '2024-11-15 11:00', 1, '2024-11-15 12:30'),
+    ('TRG-0004', 'USR-0003', 'Ospedale Santa Chiara', 'White',  'Routine check-up request',           '2024-11-14 16:20', 1, '2024-11-14 17:00');

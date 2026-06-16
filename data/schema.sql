@@ -62,7 +62,9 @@ CREATE TABLE IF NOT EXISTS medical_staff (
 CREATE TABLE IF NOT EXISTS doctors (
     doctor_id       TEXT PRIMARY KEY
         REFERENCES medical_staff(staff_id) ON DELETE CASCADE,
-    specialization  TEXT NOT NULL
+    specialization  TEXT NOT NULL,
+    hospital_name   TEXT
+        REFERENCES hospitals(hospital_name)   -- where this doctor practices
 );
 
 
@@ -171,7 +173,8 @@ CREATE TABLE IF NOT EXISTS transfer_log (
 
 
 -- =============================================================================
--- APPOINTMENTS (stub — implemented by a different team member)
+-- APPOINTMENTS
+-- Covers: UC 2 (Appointment Booking)
 -- =============================================================================
 
 CREATE TABLE IF NOT EXISTS appointments (
@@ -183,7 +186,28 @@ CREATE TABLE IF NOT EXISTS appointments (
     date            TEXT NOT NULL,
     time            TEXT NOT NULL,
     status          TEXT NOT NULL DEFAULT 'pending'
-        CHECK (status IN ('pending', 'confirmed', 'cancelled', 'completed'))
+        CHECK (status IN ('pending', 'confirmed', 'cancelled', 'completed')),
+    paid            INTEGER NOT NULL DEFAULT 0
+        CHECK (paid IN (0, 1)),
+    last_modified   TEXT                        -- YYYY-MM-DD HH:MM
+);
+
+
+-- =============================================================================
+-- PAYMENTS
+-- Covers: UC 2 (Appointment Payment)
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS payments (
+    payment_id      TEXT PRIMARY KEY,
+    appointment_id  TEXT NOT NULL
+        REFERENCES appointments(appointment_id) ON DELETE CASCADE,
+    patient_id      TEXT NOT NULL
+        REFERENCES patients(patient_id),
+    amount          REAL NOT NULL,
+    method          TEXT NOT NULL,              -- online | cash
+    status          TEXT NOT NULL DEFAULT 'pending'
+        CHECK (status IN ('pending', 'paid', 'failed', 'cancelled'))
 );
 
 
@@ -203,19 +227,24 @@ CREATE TABLE IF NOT EXISTS schedules (
 
 
 -- =============================================================================
--- TRIAGE (stub — implemented by a different team member)
+-- TRIAGE
+-- Covers: UC 8 (Triage management), UC 3 (E.R. line check)
 -- =============================================================================
 
 CREATE TABLE IF NOT EXISTS triage (
     triage_id       TEXT PRIMARY KEY,
     patient_id      TEXT NOT NULL
         REFERENCES patients(patient_id) ON DELETE CASCADE,
+    hospital_name   TEXT NOT NULL
+        REFERENCES hospitals(hospital_name),
     code            TEXT NOT NULL
-        CHECK (code IN ('red', 'orange', 'azure', 'green', 'white')),
+        CHECK (code IN ('Red', 'Orange', 'Azure', 'Green', 'White')),
     diagnosis       TEXT,
     admitted_at     TEXT NOT NULL,              -- YYYY-MM-DD HH:MM
     discharged      INTEGER NOT NULL DEFAULT 0
-        CHECK (discharged IN (0, 1))
+        CHECK (discharged IN (0, 1)),
+    discharged_at   TEXT,                       -- YYYY-MM-DD HH:MM; NULL while still in E.R.
+    last_modified   TEXT                        -- YYYY-MM-DD HH:MM
 );
 
 

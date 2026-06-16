@@ -18,11 +18,11 @@
 #include "User.h"
 #include "Doctor.h"
 #include "Nurse.h"
-// #include "Patient.h" — temporarily excluded: Patient.h/.cpp are out of sync
-// (mid-redesign), see chat. Re-enable once Patient.cpp matches Patient.h again.
+#include "Patient.h"
 #include "Appointment.h"
 #include "Schedule.h"
 #include "Payment.h"
+#include "Triage.h"
 #include <iostream>
 #include <sstream>
 #include <functional>
@@ -107,12 +107,16 @@ int main() {
         drElena.setSpecialization("Cardiology");   // restore for the rest of the test
 
         string workPass = "WP-DOC-0041", password = "DrPass123!", name = "Elena";
+        bool loginOk = false;
         string out = runIO("WP-DOC-0041 DrPass123!",
-                            [&]{ drElena.workLogin(workPass, password, name); });
-        check(out.find("Login successful") != string::npos, "Doctor::workLogin() accepts correct credentials");
+                            [&]{ loginOk = drElena.workLogin(workPass, password, name); });
+        check(out.find("Login successful") != string::npos && loginOk,
+              "Doctor::workLogin() accepts correct credentials and returns true");
 
-        out = runIO("wrong wrong", [&]{ drElena.workLogin(workPass, password, name); });
-        check(out.find("Invalid credentials") != string::npos, "Doctor::workLogin() rejects wrong credentials");
+        loginOk = true;
+        out = runIO("wrong wrong", [&]{ loginOk = drElena.workLogin(workPass, password, name); });
+        check(out.find("Invalid credentials") != string::npos && !loginOk,
+              "Doctor::workLogin() rejects wrong credentials and returns false");
 
         out = runIO("Str0ngP@ss", [&]{ drElena.changePassword(password); });
         check(out.find("changed successfully") != string::npos &&
@@ -207,33 +211,36 @@ int main() {
     }
 
     {
-        // Real, multi-word seed values on purpose: department ("General
-        // Medicine") and hospital ("Ospedale Santa Chiara") both contain
-        // spaces, but admitPatient() reads each field with a single
-        // `cin >> field`, which stops at the first space. This call
-        // demonstrates that pre-existing limitation rather than hiding it
-        // behind single-word test fixtures.
-        string out = runIO("General Medicine Ospedale Santa Chiara BED-501 2024-12-01",
+        // department/hospitalName are now read with getline (see Doctor.cpp),
+        // so real multi-word values need newline-separated input, not
+        // space-separated tokens.
+        string out = runIO("General Medicine\nOspedale Santa Chiara\nBED-501\n2024-12-01\n",
                             [&]{ drElena.admitPatient(rec, db); });
         string newHospId = rec.getHospitalizations().back().getHospitalizationId();
         MedicalRecord reloaded = db.loadMedicalRecord("USR-0001");
         bool persistedCorrectly = false;
         for (const Hospitalization& h : reloaded.getHospitalizations())
             if (h.getHospitalizationId() == newHospId &&
-                h.getHospitalName() == "Ospedale Santa Chiara")
+                h.getHospitalName() == "Ospedale Santa Chiara" &&
+                h.getDepartment() == "General Medicine")
                 persistedCorrectly = true;
-        check(persistedCorrectly,
-              "Doctor::admitPatient() persists a multi-word hospital name correctly "
-              "[KNOWN LIMITATION: cin>>hospitalName truncates at the first space — see summary]");
+        check(out.find("Patient admitted") != string::npos && persistedCorrectly,
+              "Doctor::admitPatient() persists a multi-word department/hospital name correctly");
+
+        out = runIO("ICU\nNonexistent Hospital\nBED-1\n2024-12-01\n",
+                     [&]{ drElena.admitPatient(rec, db); });
+        check(out.find("Admission failed") != string::npos,
+              "Doctor::admitPatient() reports failure for an unknown hospital instead of silently desyncing memory/DB");
     }
 
     {
-        // Same limitation, this time on transferPatient()'s newHospital field.
-        string out = runIO("HSP-0001 General_Medicine Ospedale Villa Igea BED-210",
+        // newDept/newHospital are now read with getline; hospitalizationId
+        // above it is still read with cin >>, hence the newline-separated
+        // input — see the cin.ignore() in Doctor::transferPatient.
+        string out = runIO("HSP-0001\nGeneral Medicine\nOspedale Villa Igea\nBED-210\n",
                             [&]{ drElena.transferPatient(rec, db); });
         check(out.find("Transfer completed") != string::npos,
-              "Doctor::transferPatient() completes a same-region transfer with a multi-word hospital name "
-              "[KNOWN LIMITATION: cin>>newHospital truncates at the first space — see summary]");
+              "Doctor::transferPatient() completes a same-region transfer with a multi-word hospital name");
     }
 
     {
@@ -254,9 +261,11 @@ int main() {
                      "+39 336 6789012", "NursePass123!");
     {
         string workPass = "WP-NRS-0011", password = "NursePass123!", name = "Sara";
+        bool nurseLoginOk = false;
         string out = runIO("WP-NRS-0011 NursePass123!",
-                            [&]{ nurseSara.workLogin(workPass, password, name); });
-        check(out.find("Login successful") != string::npos, "Nurse::workLogin() accepts correct credentials");
+                            [&]{ nurseLoginOk = nurseSara.workLogin(workPass, password, name); });
+        check(out.find("Login successful") != string::npos && nurseLoginOk,
+              "Nurse::workLogin() accepts correct credentials and returns true");
 
         out = runIO("Str0ngP@ss", [&]{ nurseSara.changePassword(password); });
         check(out.find("changed successfully") != string::npos, "Nurse::changePassword() accepts a valid password");
@@ -268,16 +277,80 @@ int main() {
         Hospitalization h = rec2.getHospitalizations()[0];
         out = runIO("", [&]{ nurseSara.viewHospitalization(h); });
         check(out.find(h.getHospitalizationId()) != string::npos, "Nurse::viewHospitalization() prints the hospitalization");
-
-        Prescription rx = rec2.getPrescriptions()[0];
-        out = runIO("", [&]{ nurseSara.viewPrescription(rx); });
-        check(out.find(rx.getDosage()) != string::npos && out.find(rx.getDescription()) != string::npos,
-              "Nurse::viewPrescription() prints dosage/description (regression check for the getDose()/getInstructions() fix)");
+        // Nurse::viewPrescription() was removed from Nurse.h/.cpp — no longer testable.
     }
 
-    cout << "\n=== PART 5: Patient — SKIPPED ===\n";
-    cout << "  Patient.h / Patient.cpp are currently out of sync (mid-redesign);\n";
-    cout << "  see chat for details. Re-enable this part once they match again.\n";
+    cout << "\n=== PART 5: Patient ===\n";
+    Patient marco("USR-0001", "Marco", "Bianchi", "marco.bianchi@email.it",
+                  "+39 333 1234567", "Unipol — Policy #UP-8821", "PatientPass123!");
+    {
+        check(marco.getInsurance() == "Unipol — Policy #UP-8821", "Patient::getInsurance()");
+        string newIns = "Generali — Policy #GN-0000";
+        marco.setInsurance(newIns);
+        check(marco.getInsurance() == "Generali — Policy #GN-0000", "Patient::setInsurance()");
+
+        string email = "marco.bianchi@email.it", password = "PatientPass123!", name = "Marco";
+        bool patientLoginOk = false;
+        string out = runIO("1 marco.bianchi@email.it PatientPass123!",
+                            [&]{ patientLoginOk = marco.login(email, password, name); });
+        check(out.find("Login successful") != string::npos && patientLoginOk,
+              "Patient::login() accepts correct CIE credentials and returns true");
+
+        patientLoginOk = true;
+        out = runIO("9 wrong wrong", [&]{ patientLoginOk = marco.login(email, password, name); });
+        check(out.find("invalid") != string::npos && out.find("Invalid credentials") != string::npos &&
+              !patientLoginOk,
+              "Patient::login() rejects an unknown menu choice and wrong credentials, returns false");
+
+        out = runIO("", [&]{ marco.viewMedicalRecord(rec); });
+        check(out.find("REC-0001") != string::npos, "Patient::viewMedicalRecord() prints the record");
+
+        Prescription rx = rec.getPrescriptions()[0];
+        out = runIO("", [&]{ marco.viewPrescription(rx); });
+        check(out.find(rx.getDosage()) != string::npos, "Patient::viewPrescription() prints the dosage");
+
+        // ── bookAppointment(db): search by doctor, then book the one free slot ──
+        // Seed data: USR-0004 has SCH-0001 (busy) and SCH-0002 (free, 2024-12-01
+        // 10:00). cin.ignore() inside bookAppointment eats the single newline
+        // left after `cin >> choice`, then getline reads the doctorId line.
+        out = runIO("3\nUSR-0004\n1\n", [&]{ marco.bookAppointment(db); });
+        check(out.find("APPOINTMENT BOOKED") != string::npos,
+              "Patient::bookAppointment() books the one available slot found by doctor search");
+        {
+            vector<Schedule> remaining = db.getDoctorSchedule("USR-0004");
+            bool stillAvailable = false;
+            for (const Schedule& s : remaining)
+                if (s.getSlotId() == "SCH-0002" && s.isAvailable()) stillAvailable = true;
+            check(!stillAvailable, "Patient::bookAppointment() marks the booked slot unavailable");
+        }
+
+        out = runIO("0", [&]{ marco.bookAppointment(db); });
+        check(out.find("cancelled") != string::npos, "Patient::bookAppointment() honors the cancel option");
+
+        out = runIO("3\nUSR-0004\n1\n", [&]{ marco.bookAppointment(db); });
+        check(out.find("No available slots") != string::npos,
+              "Patient::bookAppointment() reports no slots once the doctor's free slot is gone");
+
+        // ── makePayment(appointment, payment, db): online and cash paths ────────
+        Appointment apt("APT-0001", "USR-0001", "USR-0004", "2024-12-01", "09:00", "pending");
+        Payment onlinePay("PAY-T1", "", "", 75.0, "online");
+        out = runIO("1 1 4111111111111111", [&]{ marco.makePayment(apt, onlinePay, db); });
+        check(out.find("Payment successful") != string::npos && apt.isPaid() &&
+              apt.getStatus() == "confirmed",
+              "Patient::makePayment() online path pays, confirms, and marks the appointment paid");
+
+        Appointment apt2("APT-0002", "USR-0002", "USR-0005", "2024-12-03", "10:30", "pending");
+        Payment cashPay("PAY-T2", "", "", 40.0, "cash");
+        out = runIO("2", [&]{ marco.makePayment(apt2, cashPay, db); });
+        check(out.find("registered as pending") != string::npos && !apt2.isPaid() &&
+              apt2.getStatus() == "confirmed",
+              "Patient::makePayment() cash path confirms the appointment without marking it paid");
+
+        Appointment apt3("APT-0003", "USR-0003", "USR-0004", "2024-12-05", "14:00", "pending");
+        Payment cancelPay("PAY-T3", "", "", 10.0, "online");
+        out = runIO("0", [&]{ marco.makePayment(apt3, cancelPay, db); });
+        check(out.find("Payment cancelled") != string::npos, "Patient::makePayment() honors the cancel option");
+    }
 
     cout << "\n=== PART 6: MedicalRecord ===\n";
     {
@@ -371,19 +444,178 @@ int main() {
         check(dischargedOk, "MedicalRecord::dischargePatient() discharges an active hospitalization (drives Hospitalization::discharge())");
     }
 
-    cout << "\n=== PART 9: stub entity classes ===\n";
+    cout << "\n=== PART 9: Appointment, Payment, Schedule ===\n";
     {
-        Appointment apt("APT-TEST", "USR-0001", "USR-0004", "2025-03-01", "09:00");
+        Appointment apt("APT-0002", "USR-0002", "USR-0005", "2024-12-03", "10:30", "pending");
+        check(apt.getAppointmentId() == "APT-0002" && !apt.isPaid() &&
+              apt.getStatus() == "pending", "Appointment constructor/getters round-trip");
+
         string out = runIO("", [&]{ apt.display(); });
-        check(out.find("APT-TEST") != string::npos && out.find("Booked") != string::npos,
-              "Appointment::display() prints the appointment with default status 'Booked'");
+        check(out.find("APT-0002") != string::npos && out.find("pending") != string::npos,
+              "Appointment::display() prints the appointment");
 
-        Schedule slot("USR-0004", "2025-03-01", "09:00");
-        check(slot.isAvailable(), "Schedule::isAvailable() defaults to true for a freshly constructed slot");
+        apt.confirm(db);
+        check(apt.getStatus() == "confirmed", "Appointment::confirm() updates in-memory status");
 
-        Payment pay("PAY-TEST", "USR-0001", 49.90);
-        pay.pay();
-        check(true, "Payment::pay() is callable [NOTE: Payment has no accessor to verify the 'paid' flag changed]");
+        apt.reschedule("2024-12-04", "11:00", db);
+        check(apt.getDate() == "2024-12-04" && apt.getTime() == "11:00",
+              "Appointment::reschedule() updates in-memory date/time");
+
+        apt.markPaid(db);
+        check(apt.isPaid(), "Appointment::markPaid() updates in-memory paid flag");
+
+        apt.cancel(db);
+        check(apt.getStatus() == "cancelled", "Appointment::cancel() updates in-memory status");
+
+        Payment p("PAY-DIRECT", "APT-0003", "USR-0003", 25.0, "online");
+        check(p.getPaymentId() == "PAY-DIRECT" && p.getAmount() == 25.0 &&
+              p.getMethod() == "online" && p.getStatus() == "pending",
+              "Payment constructor/getters round-trip");
+
+        bool paid = p.processOnlinePayment(db);
+        check(paid && p.getStatus() == "paid",
+              "Payment::processOnlinePayment() persists and updates status");
+
+        Payment p2("PAY-DIRECT-2", "APT-0001", "USR-0001", 15.0, "cash");
+        p2.registerPendingPayment(db);
+        check(p2.getStatus() == "pending", "Payment::registerPendingPayment() sets pending status");
+
+        p2.cancel(db);
+        check(p2.getStatus() == "cancelled", "Payment::cancel() updates status and persists");
+    }
+    {
+        Schedule slot("SCH-TEST", "USR-0004", "2025-03-01", "09:00", true);
+        check(slot.getSlotId() == "SCH-TEST" && slot.getDoctorId() == "USR-0004" &&
+              slot.isAvailable(), "Schedule constructor/getters round-trip");
+
+        slot.setDate("2025-03-02");
+        slot.setTimeSlot("10:00");
+        slot.setAvailable(false);
+        check(slot.getDate() == "2025-03-02" && slot.getTimeSlot() == "10:00" &&
+              !slot.isAvailable(), "Schedule setters round-trip in-memory");
+
+        string out = runIO("", [&]{ slot.display(); });
+        check(out.find("SCH-TEST") != string::npos, "Schedule::display() prints the slot");
+    }
+
+    cout << "\n=== PART 10: Doctor schedule / availability ===\n";
+    {
+        // Seed data has SCH-0001..0004 for USR-0004/USR-0005; SCH-0002 is the
+        // only available one for USR-0004 (see data/seed.sql).
+        vector<Schedule> slots = db.getDoctorSchedule("USR-0004");
+        check(slots.size() == 2, "Database::getDoctorSchedule() returns this doctor's slots only");
+
+        check(db.checkScheduleConflict("USR-0004", "2024-12-01", "09:00"),
+              "Database::checkScheduleConflict() detects an existing slot");
+        check(!db.checkScheduleConflict("USR-0004", "2024-12-01", "23:59"),
+              "Database::checkScheduleConflict() reports no conflict for a free slot");
+
+        bool added = db.addScheduleSlot("USR-0004", "2025-04-01", "08:00");
+        check(added, "Database::addScheduleSlot() adds a new slot");
+        check(db.getDoctorSchedule("USR-0004").size() == 3,
+              "Database::addScheduleSlot() persists — slot count goes up");
+
+        bool removed = db.removeScheduleSlot("USR-0004", "2025-04-01", "08:00");
+        check(removed, "Database::removeScheduleSlot() removes an existing slot");
+        check(db.getDoctorSchedule("USR-0004").size() == 2,
+              "Database::removeScheduleSlot() persists — slot count goes back down");
+
+        bool removedAgain = db.removeScheduleSlot("USR-0004", "2025-04-01", "08:00");
+        check(!removedAgain, "Database::removeScheduleSlot() reports failure for an already-removed slot");
+
+        // Both seeded doctors (USR-0004, USR-0005) practice at Ospedale Santa
+        // Chiara; no doctor is seeded at Ospedale Villa Igea.
+        vector<Schedule> byHospital = db.searchAvailableSlots("", "Ospedale Santa Chiara", "");
+        bool onlyExpectedDoctors = !byHospital.empty();
+        for (const Schedule& s : byHospital)
+            if (s.getDoctorId() != "USR-0004" && s.getDoctorId() != "USR-0005")
+                onlyExpectedDoctors = false;
+        check(onlyExpectedDoctors,
+              "Database::searchAvailableSlots() filters by hospital via doctors.hospital_name");
+
+        vector<Schedule> byOtherHospital = db.searchAvailableSlots("", "Ospedale Villa Igea", "");
+        check(byOtherHospital.empty(),
+              "Database::searchAvailableSlots() returns nothing for a hospital with no doctors");
+
+        string out = runIO("0", [&]{ drElena.manageAvailability(db); });
+        check(out.find("cancelled") != string::npos,
+              "Doctor::manageAvailability() honors the cancel option without changing anything");
+    }
+
+    cout << "\n=== PART 11: Triage / E.R. ===\n";
+    {
+        Triage empty;
+        check(empty.getTriageId().empty(), "Triage() default constructor is the 'not found' sentinel");
+
+        Triage seeded("TRG-TEST", "USR-TEST", "Ospedale Santa Chiara", "Red",
+                       "Test diagnosis", "2025-01-01 00:00", false, "");
+        check(seeded.getCode() == "Red" && seeded.getDiagnosis() == "Test diagnosis" &&
+              !seeded.isDischarged(), "Triage constructor/getters round-trip");
+
+        // ── admitPatient(db): hospital name and diagnosis are read with
+        // getline (multi-word, FK-checked for hospital), so they're on their
+        // own lines; patient ID / code choice / confirm are single tokens.
+        Triage t;
+        string out = runIO("USR-0002\nOspedale Santa Chiara\n2\nHigh blood pressure\ny\n",
+                            [&]{ t.admitPatient(db); });
+        check(out.find("Patient admitted to E.R.") != string::npos &&
+              t.getCode() == "Orange" && t.getDiagnosis() == "High blood pressure" &&
+              !t.isDischarged(),
+              "Triage::admitPatient() admits a new E.R. patient");
+
+        Triage reloaded = db.loadTriageRecord(t.getTriageId());
+        check(reloaded.getPatientId() == "USR-0002" && reloaded.getHospitalName() == "Ospedale Santa Chiara",
+              "Triage::admitPatient() persists the new record to the database");
+
+        out = runIO("9", [&]{ t.admitPatient(db); });
+        check(out.find("Invalid code") != string::npos,
+              "Triage::admitPatient() rejects an invalid code choice");
+
+        // ── updateTriageCode(db) ────────────────────────────────────────────────
+        out = runIO(t.getTriageId() + "\n1\ny", [&]{ t.updateTriageCode(db); });
+        check(out.find("updated to: Red") != string::npos && t.getCode() == "Red",
+              "Triage::updateTriageCode() changes the code of an active E.R. patient");
+
+        out = runIO("TRG-NOPE\n1\ny", [&]{ t.updateTriageCode(db); });
+        check(out.find("not found or already discharged") != string::npos,
+              "Triage::updateTriageCode() reports an unknown triage ID");
+
+        // ── viewStatus(db) ───────────────────────────────────────────────────────
+        out = runIO("TRG-0001", [&]{ t.viewStatus(db); });
+        check(out.find("Severe chest pain") != string::npos && out.find("currently in E.R.") != string::npos,
+              "Triage::viewStatus() shows an active seeded patient's record");
+
+        out = runIO("TRG-0003", [&]{ t.viewStatus(db); });
+        check(out.find("Discharged:") != string::npos,
+              "Triage::viewStatus() shows a discharged seeded patient's record");
+
+        out = runIO("TRG-NOPE", [&]{ t.viewStatus(db); });
+        check(out.find("No triage record found") != string::npos,
+              "Triage::viewStatus() reports an unknown triage ID");
+
+        // ── checkERCrowding(db) ──────────────────────────────────────────────────
+        // Active at Ospedale Santa Chiara: seeded TRG-0001, TRG-0002, plus the
+        // one we just admitted (t) = 3, until t is discharged below.
+        out = runIO("Ospedale Santa Chiara", [&]{ t.checkERCrowding(db); });
+        check(out.find("Total: 3") != string::npos,
+              "Triage::checkERCrowding() counts active patients at a busy hospital");
+
+        out = runIO("Ospedale San Raffaele", [&]{ t.checkERCrowding(db); });
+        check(out.find("No patients currently in E.R.") != string::npos,
+              "Triage::checkERCrowding() reports none for a hospital with no E.R. activity");
+
+        // ── dischargeFromER(db) ──────────────────────────────────────────────────
+        out = runIO(t.getTriageId() + "\ny", [&]{ t.dischargeFromER(db); });
+        check(out.find("Patient discharged from E.R.") != string::npos && t.isDischarged(),
+              "Triage::dischargeFromER() discharges an active E.R. patient");
+
+        out = runIO(t.getTriageId() + "\ny", [&]{ t.dischargeFromER(db); });
+        check(out.find("not found or already discharged") != string::npos,
+              "Triage::dischargeFromER() reports an already-discharged triage ID");
+
+        out = runIO("Ospedale Santa Chiara", [&]{ t.checkERCrowding(db); });
+        check(out.find("Total: 2") != string::npos,
+              "Triage::checkERCrowding() count drops back down after a discharge");
     }
 
     // ── Summary ────────────────────────────────────────────────────────────

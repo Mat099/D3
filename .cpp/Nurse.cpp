@@ -15,7 +15,7 @@ Nurse::Nurse(const string& id,
     : User(id, name, surname, email, phoneNumber, password) {
 }
 
-void Nurse::workLogin(string& workPass, string& password, string& name) {
+bool Nurse::workLogin(string& workPass, string& password, string& name) {
     cout << "╔══════════════════════════════════════════════════╗" << endl;
     cout << "║  Please enter your work credentials:             ║" << endl;
     cout << "║                                                  ║" << endl;
@@ -31,12 +31,13 @@ void Nurse::workLogin(string& workPass, string& password, string& name) {
         cout << "╔═════════════════════════════════════════════════╗" << endl;
         cout << "║  Invalid credentials. Please try again.         ║" << endl;
         cout << "╚═════════════════════════════════════════════════╝" << endl;
+        return false;
     }
-              
-    else{
+    else {
         cout << "╔═════════════════════════════════════════════════╗" << endl;
         cout << "║  Login successful! Welcome, " << name << "!     ║" << endl;
         cout << "╚═════════════════════════════════════════════════╝" << endl;
+        return true;
     }
 }
 
@@ -105,19 +106,6 @@ void Nurse::viewMedicalRecord(MedicalRecord& record) {
     cout << "║  Date:       " << record.getDate()      << endl;
     cout << "║  Diagnosis:  " << record.getDiagnosis() << endl;
     cout << "║  Notes:      " << record.getNotes()     << endl;
-    cout << "╚══════════════════════════════════════════════════╝" << endl;
-}
-
-void Nurse::viewPrescription(Prescription& prescription) {
-    cout << "╔══════════════════════════════════════════════════╗" << endl;
-    cout << "║  Prescription                                     ║" << endl;
-    cout << "║                                                  ║" << endl;
-    cout << "║  Prescription ID: " << prescription.getPrescriptionId() << endl;
-    cout << "║  Patient ID:      " << prescription.getPatientId()      << endl;
-    cout << "║  Medication:      " << prescription.getMedication()     << endl;
-    cout << "║  Dosage:          " << prescription.getDosage()         << endl;
-    cout << "║  Description:     " << prescription.getDescription()    << endl;
-    cout << "║  Status:          " << (prescription.isActive() ? "Active" : "Cancelled") << endl;
     cout << "╚══════════════════════════════════════════════════╝" << endl;
 }
 

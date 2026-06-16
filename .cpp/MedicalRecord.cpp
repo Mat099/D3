@@ -101,12 +101,13 @@ bool MedicalRecord::updatePrescriptionDosage(const string& prescriptionId,
 
 // ── Hospitalization mutations ─────────────────────────────────────────────────
 
-void MedicalRecord::addHospitalization(const Hospitalization& h, Database& db) {
-    db.insertHospitalization(h);
+bool MedicalRecord::addHospitalization(const Hospitalization& h, Database& db) {
+    if (!db.insertHospitalization(h)) return false;   // e.g. unknown hospital_name (FK)
     hospitalizations.push_back(h);
     string ts = Database::currentTimestamp();
     lastModified = ts;
     db.updateMedicalRecordTimestamp(recordId, ts);
+    return true;
 }
 
 bool MedicalRecord::transferPatient(const string& hospitalizationId,
@@ -132,6 +133,7 @@ bool MedicalRecord::dischargePatient(const string& hospitalizationId,
                                       Database& db) {
     for (Hospitalization& h : hospitalizations) {
         if (h.getHospitalizationId() == hospitalizationId) {
+            if (h.isDischarged()) return false;   // already discharged — nothing to do
             h.discharge(date, db);
             string ts = Database::currentTimestamp();
             lastModified = ts;

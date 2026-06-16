@@ -5,7 +5,7 @@
 using namespace std;
 
 class User {
-private:
+protected:
     string id;
     string name;
     string surname;

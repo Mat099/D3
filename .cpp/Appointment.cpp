@@ -10,13 +10,14 @@ Appointment::Appointment(const string& id,
                          const string& date,
                          const string& time,
                          const string& status)
+    : appointmentId(id),
+      patientId(patient),
+      doctorId(doctor),
+      date(date),
+      time(time),
+      status(status),
+      paid(false)
 {
-    this->appointmentId = id;
-    this->patientId = patient;
-    this->doctorId = doctor;
-    this->date = date;
-    this->time = time;
-    this->status = status;
 }
 
 void Appointment::confirm(Database& db)
@@ -48,17 +49,33 @@ void Appointment::reschedule(const string& newDate,
     date = newDate;
     time = newTime;
 
-    db.updateAppointmentSchedule(appointmentId, newDate, newTime,
-                                Database::currentTimestamp());
+    db.updateAppointmentSchedule(
+      appointmentId, 
+      newDate, 
+      newTime,
+      Database::currentTimestamp()
+      );
 
     cout << "╔══════════════════════════════════════════════════╗" << endl;
     cout << "║  Appointment rescheduled successfully!           ║" << endl;
     cout << "╚══════════════════════════════════════════════════╝" << endl;
 }
 
+void Appointment::markPaid(Database& db)
+{
+    paid = true;
+
+    db.updateAppointmentPaymentStatus(appointmentId, true);
+
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║  Payment marked as completed                     ║" << endl;
+    cout << "║  Appointment is now confirmed                    ║" << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+}
+
 void Appointment::display()
 {
-   cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
     cout << "║  Appointment                                     ║" << endl;
     cout << "║                                                  ║" << endl;
     cout << "║  ID:       " << appointmentId << endl;
@@ -67,5 +84,6 @@ void Appointment::display()
     cout << "║  Date:     " << date << endl;
     cout << "║  Time:     " << time << endl;
     cout << "║  Status:   " << status << endl;
+    cout << "║  Paid:     " << (paid ? "YES" : "NO") << endl;
     cout << "╚══════════════════════════════════════════════════╝" << endl;
 }

@@ -20,7 +20,7 @@ public:
            const string& specialization, const string& password);
 
     // UC1
-    void workLogin(string& workPass, string& password, string& name);
+    bool workLogin(string& workPass, string& password, string& name);
 
     // UC12
     void changePassword(string& password);
@@ -39,6 +39,7 @@ public:
     void admitPatient(MedicalRecord& record, Database& db);
     void transferPatient(MedicalRecord& record, Database& db);
     void dischargePatient(MedicalRecord& record, Database& db);
+    void manageAvailability(Database& db);
 
     // getters
     string getSpecialization() const { return specialization; }

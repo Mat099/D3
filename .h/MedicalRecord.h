@@ -47,7 +47,9 @@ public:
                                    const string& newDosage, Database& db);
 
     // ── Hospitalization mutations — update in-memory AND persist via db ──────
-    void addHospitalization(const Hospitalization& h, Database& db);
+    // Returns false (and makes no in-memory change) if the insert is rejected
+    // by the DB, e.g. an unknown hospital_name failing the foreign key.
+    bool addHospitalization(const Hospitalization& h, Database& db);
     bool transferPatient(const string& hospitalizationId,
                           const string& newDepartment, const string& newHospital,
                           const string& newBedId, Database& db);

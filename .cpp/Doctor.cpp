@@ -1,9 +1,12 @@
 #include "User.h"
 #include "Doctor.h"
 #include "Database.h"
+#include "Schedule.h"
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <limits>
+#include <vector>
 using namespace std;
 
 
@@ -18,7 +21,7 @@ Doctor::Doctor(const string& id,
     //appointments(nullptr), medicalRecord(nullptr) etc
 }
 
-void Doctor::workLogin(string& workPass, string &password, string& name) {
+bool Doctor::workLogin(string& workPass, string &password, string& name) {
     cout << "╔══════════════════════════════════════════════════╗" << endl;
     cout << "║  Please enter your work credentials:             ║" << endl;
     cout << "║                                                  ║" << endl;
@@ -34,12 +37,13 @@ void Doctor::workLogin(string& workPass, string &password, string& name) {
         cout << "╔═════════════════════════════════════════════════╗" << endl;
         cout << "║  Invalid credentials. Please try again.         ║" << endl;
         cout << "╚═════════════════════════════════════════════════╝" << endl;
+        return false;
     }
-              
-    else{
+    else {
         cout << "╔═════════════════════════════════════════════════╗" << endl;
         cout << "║  Login successful! Welcome, " << name << "!     ║" << endl;
         cout << "╚═════════════════════════════════════════════════╝" << endl;
+        return true;
     }
 }
 
@@ -124,8 +128,6 @@ void Doctor::viewPrescription(Prescription& prescription) {
     cout << "║  Issued:     " << prescription.getIssueDate()      << endl;
     cout << "╚══════════════════════════════════════════════════╝" << endl;
 }
-
-// ── DB-aware methods ─────────────────────────────────────────────────────────
 
 MedicalRecord Doctor::loadPatientRecord(Database& db) {
     cout << "╔══════════════════════════════════════════════════╗" << endl;
@@ -279,14 +281,14 @@ void Doctor::admitPatient(MedicalRecord& record, Database& db) {
     cout << "╚══════════════════════════════════════════════════╝" << endl;
 
     string department;
-    cin >> department;
+    getline(cin, department);
 
     cout << "╔══════════════════════════════════════════════════╗" << endl;
     cout << "║  Hospital name:                                  ║" << endl;
     cout << "╚══════════════════════════════════════════════════╝" << endl;
 
     string hospitalName;
-    cin >> hospitalName;
+    getline(cin, hospitalName);
 
     cout << "╔══════════════════════════════════════════════════╗" << endl;
     cout << "║  Bed ID (e.g. BED-301):                          ║" << endl;
@@ -306,10 +308,13 @@ void Doctor::admitPatient(MedicalRecord& record, Database& db) {
     Hospitalization h(newId, record.getRecordId(), record.getPatientId(),
                       department, hospitalName, bedId, admissionDate,
                       "", false, getId(), Database::currentTimestamp());
-    record.addHospitalization(h, db);
+    bool ok = record.addHospitalization(h, db);
 
     cout << "╔══════════════════════════════════════════════════╗" << endl;
-    cout << "║  Patient admitted: " << newId                    << endl;
+    if (ok)
+        cout << "║  Patient admitted: " << newId                    << endl;
+    else
+        cout << "║  Admission failed: unknown hospital '" << hospitalName << "'." << endl;
     cout << "╚══════════════════════════════════════════════════╝" << endl;
 }
 
@@ -333,15 +338,16 @@ void Doctor::transferPatient(MedicalRecord& record, Database& db) {
     cout << "║  New department:                                 ║" << endl;
     cout << "╚══════════════════════════════════════════════════╝" << endl;
 
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
     string newDept;
-    cin >> newDept;
+    getline(cin, newDept);
 
     cout << "╔══════════════════════════════════════════════════╗" << endl;
     cout << "║  New hospital name:                              ║" << endl;
     cout << "╚══════════════════════════════════════════════════╝" << endl;
 
     string newHospital;
-    cin >> newHospital;
+    getline(cin, newHospital);
 
     cout << "╔══════════════════════════════════════════════════╗" << endl;
     cout << "║  New bed ID:                                     ║" << endl;
@@ -394,5 +400,135 @@ void Doctor::dischargePatient(MedicalRecord& record, Database& db) {
         cout << "║  Hospitalization not found or already         ║" << endl;
         cout << "║  discharged.                                  ║" << endl;
     }
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+}
+
+void Doctor::manageAvailability(Database& db){
+  
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║           MANAGE AVAILABILITY                    ║" << endl;
+    cout << "╠══════════════════════════════════════════════════╣" << endl;
+    cout << "║  1. View current schedule                        ║" << endl;
+    cout << "║  2. Modify availability                          ║" << endl;
+    cout << "║  0. Cancel                                       ║" << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+
+    int choice;
+  
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║  Select option:                                  ║" << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+  
+    cin >> choice;
+
+    if (choice == 0)
+    {
+        cout << "╔══════════════════════════════════════════════════╗" << endl;
+        cout << "║  Operation cancelled.                            ║" << endl;
+        cout << "╚══════════════════════════════════════════════════╝" << endl;
+        return;
+    }
+
+
+    vector<Schedule> schedule = db.getDoctorSchedule(this->getId());
+
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║            CURRENT WEEKLY SCHEDULE               ║" << endl;
+    cout << "╠══════════════════════════════════════════════════╣" << endl;
+
+    for (size_t i = 0; i < schedule.size(); i++)
+    {
+        cout << "║  " << (i + 1)
+             << ". " << schedule[i].getDate()
+             << " | " << schedule[i].getTimeSlot()
+             << " | Available: "
+             << (schedule[i].isAvailable() ? "YES" : "NO");
+
+        cout << string(10, ' ') << "║" << endl;
+    }
+
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+
+    if (choice == 1)
+    {
+        return;
+    }
+
+    string date, timeSlot;
+    int action;
+
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║  Enter date (YYYY-MM-DD):                        ║" << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+
+    cin >> date;
+  
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║  Enter time slot (HH:MM):                        ║" << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+  
+    cin >> timeSlot;
+
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║  1. Add slot                                     ║" << endl;
+    cout << "║  2. Remove slot                                  ║" << endl;
+    cout << "║  0. Cancel                                       ║" << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+
+
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║ Select action:                                   ║" << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+
+    cin >> action;
+
+    if (action == 0)
+    {
+        cout << "╔══════════════════════════════════════════════════╗" << endl;
+        cout << "║  Operation cancelled.                            ║" << endl;
+        cout << "╚══════════════════════════════════════════════════╝" << endl;
+        return;
+    }
+  
+    bool conflict = db.checkScheduleConflict(this->getId(), date, timeSlot);
+
+    if (conflict)
+    {
+        cout << "╔══════════════════════════════════════════════════╗" << endl;
+        cout << "║  ERROR: Slot overlaps with existing booking      ║" << endl;
+        cout << "║  Modification rejected.                          ║" << endl;
+        cout << "╚══════════════════════════════════════════════════╝" << endl;
+        return;
+    }
+
+    bool success = false; 
+  
+    if (action == 1)
+    {
+        success = db.addScheduleSlot(this->getId(), date, timeSlot);
+    }
+    else if (action == 2)
+    {
+        success = db.removeScheduleSlot(this->getId(), date, timeSlot);
+    }
+    else
+    {
+        cout << "╔══════════════════════════════════════════════════╗" << endl;
+        cout << "║  Invalid action selected.                        ║" << endl;
+        cout << "╚══════════════════════════════════════════════════╝" << endl;
+        return;
+    }
+
+    if (!success)
+    {
+        cout << "╔══════════════════════════════════════════════════╗" << endl;
+        cout << "║  ERROR: Unable to update schedule                ║" << endl;
+        cout << "║  Previous schedule restored.                     ║" << endl;
+        cout << "╚══════════════════════════════════════════════════╝" << endl;
+        return;
+    }
+  
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║        SCHEDULE UPDATED SUCCESSFULLY             ║" << endl;
     cout << "╚══════════════════════════════════════════════════╝" << endl;
 }
