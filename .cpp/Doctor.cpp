@@ -504,3 +504,133 @@ void Doctor::dischargePatient(MedicalRecord& record, Database& db) {
     }
     cout << "╚══════════════════════════════════════════════════╝" << endl;
 }
+
+void Doctor::manageAvailability(Database& db){
+  
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║           MANAGE AVAILABILITY                    ║" << endl;
+    cout << "╠══════════════════════════════════════════════════╣" << endl;
+    cout << "║  1. View current schedule                        ║" << endl;
+    cout << "║  2. Modify availability                          ║" << endl;
+    cout << "║  0. Cancel                                       ║" << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+
+    int choice;
+  
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║  Select option:                                  ║" << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+  
+    cin >> choice;
+
+    if (choice == 0)
+    {
+        cout << "╔══════════════════════════════════════════════════╗" << endl;
+        cout << "║  Operation cancelled.                            ║" << endl;
+        cout << "╚══════════════════════════════════════════════════╝" << endl;
+        return;
+    }
+
+
+    vector<Schedule> schedule = db.getDoctorSchedule(this->getId());
+
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║            CURRENT WEEKLY SCHEDULE               ║" << endl;
+    cout << "╠══════════════════════════════════════════════════╣" << endl;
+
+    for (size_t i = 0; i < schedule.size(); i++)
+    {
+        cout << "║  " << (i + 1)
+             << ". " << schedule[i].getDate()
+             << " | " << schedule[i].getTimeSlot()
+             << " | Available: "
+             << (schedule[i].isAvailable() ? "YES" : "NO");
+
+        cout << string(10, ' ') << "║" << endl;
+    }
+
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+
+    if (choice == 1)
+    {
+        return;
+    }
+
+    string date, timeSlot;
+    int action;
+
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║  Enter date (YYYY-MM-DD):                        ║" << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+
+    cin >> date;
+  
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║  Enter time slot (HH:MM):                        ║" << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+  
+    cin >> timeSlot;
+
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║  1. Add slot                                     ║" << endl;
+    cout << "║  2. Remove slot                                  ║" << endl;
+    cout << "║  0. Cancel                                       ║" << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+
+
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║ Select action:                                   ║" << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+
+    cin >> action;
+
+    if (action == 0)
+    {
+        cout << "╔══════════════════════════════════════════════════╗" << endl;
+        cout << "║  Operation cancelled.                            ║" << endl;
+        cout << "╚══════════════════════════════════════════════════╝" << endl;
+        return;
+    }
+  
+    bool conflict = db.checkScheduleConflict(this->getId(), date, timeSlot);
+
+    if (conflict)
+    {
+        cout << "╔══════════════════════════════════════════════════╗" << endl;
+        cout << "║  ERROR: Slot overlaps with existing booking      ║" << endl;
+        cout << "║  Modification rejected.                          ║" << endl;
+        cout << "╚══════════════════════════════════════════════════╝" << endl;
+        return;
+    }
+
+    bool success = false; 
+  
+    if (action == 1)
+    {
+        success = db.addScheduleSlot(this->getId(), date, timeSlot);
+    }
+    else if (action == 2)
+    {
+        success = db.removeScheduleSlot(this->getId(), date, timeSlot);
+    }
+    else
+    {
+        cout << "╔══════════════════════════════════════════════════╗" << endl;
+        cout << "║  Invalid action selected.                       ║" << endl;
+        cout << "╚══════════════════════════════════════════════════╝" << endl;
+        return;
+    }
+
+    if (!success)
+    {
+        cout << "╔══════════════════════════════════════════════════╗" << endl;
+        cout << "║  ERROR: Unable to update schedule               ║" << endl;
+        cout << "║  Previous schedule restored.                    ║" << endl;
+        cout << "╚══════════════════════════════════════════════════╝" << endl;
+        return;
+    }
+  
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║        SCHEDULE UPDATED SUCCESSFULLY            ║" << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+}
