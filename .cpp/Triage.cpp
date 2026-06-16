@@ -290,8 +290,7 @@ void Triage::checkERCrowding(Database& db) {
         cout << "╚══════════════════════════════════════════════════╝" << endl;
         return;
     }
-      
-    else
+    
     cout << "╔══════════════════════════════════════════════════╗" << endl;
     cout << "║  E.R. patients at: " << hosp                      << endl;
     cout << "║  Total: " << patients.size()                       << endl;
