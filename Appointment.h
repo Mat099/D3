@@ -41,7 +41,7 @@ public:
     string getDate()          const { return date; }
     string getTime()          const { return time; }
     string getStatus()        const { return status; }
-    bool isPaid() const { return paid; }
+    bool isPaid()             const { return paid; }
 
     void setDate(const string& d)   { date = d; }
     void setTime(const string& t)   { time = t; }
