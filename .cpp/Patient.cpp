@@ -288,17 +288,11 @@ void Patient::bookAppointment(Appointment& appointment){
     cout << "╔══════════════════════════════════════════════════╗" << endl;
     cout << "║             APPOINTMENT CONFIRMED                ║" << endl;
     cout << "╠══════════════════════════════════════════════════╣" << endl;
-
-    cout << "║  Date:   " << selected.getDate();
-    cout << string(29 - selected.getDate().length(), ' ') << "║" << endl;
-
-    cout << "║  Time:   " << selected.getTimeSlot();
-    cout << string(29 - selected.getTimeSlot().length(), ' ') << "║" << endl;
-
-    cout << "║  Doctor: " << selected.getDoctorId();
-    cout << string(29 - selected.getDoctorId().length(), ' ') << "║" << endl;
-
-    cout << "║  Status: CONFIRMED                           ║" << endl;
+    cout << "║  Date:   " << selected.getDate() << endl;
+    cout << "║  Time:   " << selected.getTimeSlot() << endl;
+    cout << "║  Doctor: " << selected.getDoctorId() << endl;
+    cout << "║  Status: CONFIRMED                               ║" << endl;
     cout << "╚══════════════════════════════════════════════════╝" << endl;
+
 }
 
