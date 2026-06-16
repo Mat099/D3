@@ -301,7 +301,7 @@ void Patient::bookAppointment(Database& db){
         this->getId(),
         selected.getDoctorId(),
         selected.getDate(),
-        selected.getTimeSlot()
+        selected.getTimeSlot(),
         "pending"
     );
 
@@ -310,7 +310,8 @@ void Patient::bookAppointment(Database& db){
         newAppointment.getPatientId(),
         newAppointment.getDoctorId(),
         newAppointment.getDate(),
-        newAppointment.getTime()
+        newAppointment.getTime(),
+        newAppointment.getStatus()
     );
 
     db.updateScheduleAvailability(selected.getSlotId(), false);
