@@ -616,7 +616,7 @@ void Doctor::manageAvailability(Database& db){
     else
     {
         cout << "╔══════════════════════════════════════════════════╗" << endl;
-        cout << "║  Invalid action selected.                       ║" << endl;
+        cout << "║  Invalid action selected.                        ║" << endl;
         cout << "╚══════════════════════════════════════════════════╝" << endl;
         return;
     }
@@ -624,13 +624,13 @@ void Doctor::manageAvailability(Database& db){
     if (!success)
     {
         cout << "╔══════════════════════════════════════════════════╗" << endl;
-        cout << "║  ERROR: Unable to update schedule               ║" << endl;
-        cout << "║  Previous schedule restored.                    ║" << endl;
+        cout << "║  ERROR: Unable to update schedule                ║" << endl;
+        cout << "║  Previous schedule restored.                     ║" << endl;
         cout << "╚══════════════════════════════════════════════════╝" << endl;
         return;
     }
   
     cout << "╔══════════════════════════════════════════════════╗" << endl;
-    cout << "║        SCHEDULE UPDATED SUCCESSFULLY            ║" << endl;
+    cout << "║        SCHEDULE UPDATED SUCCESSFULLY             ║" << endl;
     cout << "╚══════════════════════════════════════════════════╝" << endl;
 }
