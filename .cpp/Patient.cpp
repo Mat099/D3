@@ -1,5 +1,7 @@
 #include "User.h"
 #include "Patient.h"
+#include "Payment.h"
+#include "Database.h"
 #include <iostream>
 #include <string>
 using namespace std;
@@ -88,3 +90,67 @@ void Patient::viewPrescription(Prescription& prescription) {
     cout << "║  Issued:     " << prescription.getIssueDate()      << endl;
     cout << "╚══════════════════════════════════════════════════╝" << endl;
 }
+
+void Patient::makePayment(Payment& payment) {
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║  Payment                                         ║" << endl;
+    cout << "║                                                  ║" << endl;
+    cout << "║  Select payment option:                          ║" << endl;
+    cout << "║  1. Online Payment                               ║" << endl;
+    cout << "║  2. Pay in Person                                ║" << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+
+    int option;
+    cin >> option; 
+
+     if(option == 1)
+    {
+        cout << "╔══════════════════════════════════════════════════╗" << endl;
+        cout << "║  Select Payment Method                           ║" << endl;
+        cout << "║                                                  ║" << endl;
+        cout << "║  1. Credit Card                                  ║" << endl;
+        cout << "║  2. Debit Card                                   ║" << endl;
+        cout << "║  3. PayPal                                       ║" << endl;
+        cout << "║  4. pagoPA                                       ║" << endl;
+        cout << "╚══════════════════════════════════════════════════╝" << endl;
+
+        int method;
+        cin >> method;
+
+        string paymentInfo;
+
+        cout << "Enter payment information: ";
+        cin >> paymentInfo;
+
+        if(paymentInfo.empty())
+        {
+            cout << "╔══════════════════════════════════════════════════╗" << endl;
+            cout << "║  Invalid payment information.                    ║" << endl;
+            cout << "║  Please try again.                               ║" << endl;
+            cout << "╚══════════════════════════════════════════════════╝" << endl;
+            return;
+        }
+
+        payment.pay();
+
+        cout << "╔══════════════════════════════════════════════════╗" << endl;
+        cout << "║  Payment successful!                             ║" << endl;
+        cout << "║  Appointment confirmed.                          ║" << endl;
+        cout << "║  Confirmation e-mail sent.                       ║" << endl;
+        cout << "╚══════════════════════════════════════════════════╝" << endl;
+    }
+    else if(option == 2)
+    {
+        cout << "╔══════════════════════════════════════════════════╗" << endl;
+        cout << "║  Appointment confirmed.                          ║" << endl;
+        cout << "║  Payment registered as pending.                  ║" << endl;
+        cout << "╚══════════════════════════════════════════════════╝" << endl;
+    }
+    else
+    {
+        cout << "╔══════════════════════════════════════════════════╗" << endl;
+        cout << "║  Invalid option selected.                        ║" << endl;
+        cout << "╚══════════════════════════════════════════════════╝" << endl;
+    }
+}
+     
