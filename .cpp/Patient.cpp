@@ -91,7 +91,7 @@ void Patient::viewPrescription(Prescription& prescription) {
     cout << "╚══════════════════════════════════════════════════╝" << endl;
 }
 
-void Patient::makePayment(Appointment& appointment, Payment& payment) {
+void Patient::makePayment(Appointment& appointment, Payment& payment, Database& db) {
     cout << "╔══════════════════════════════════════════════════╗" << endl;
     cout << "║  Payment                                         ║" << endl;
     cout << "║                                                  ║" << endl;
@@ -146,14 +146,9 @@ void Patient::makePayment(Appointment& appointment, Payment& payment) {
       
         db.updatePaymentStatus(payment.getPaymentId(), "paid");
 
+        appointment.setPaid(true);
         appointment.setStatus("confirmed");
-        appointment.setPaymentStatus("paid");
-
-        db.updateAppointmentStatus(
-            appointment.getAppointmentId(),
-            "confirmed",
-            Database::currentTimestamp()
-        );
+        appointment.confirm(db);
 
         cout << "╔══════════════════════════════════════════════════╗" << endl;
         cout << "║  Payment successful!                             ║" << endl;
@@ -174,8 +169,8 @@ void Patient::makePayment(Appointment& appointment, Payment& payment) {
             "pending"
         );
 
+        appointment.setPaid(false);
         appointment.setStatus("confirmed");
-        appointment.setPaymentStatus("pending");
       
         cout << "╔══════════════════════════════════════════════════╗" << endl;
         cout << "║  Appointment confirmed.                          ║" << endl;
@@ -243,7 +238,7 @@ void Patient::bookAppointment(Appointment& appointment){
     else
     {
         cout << "╔══════════════════════════════════════════════════╗" << endl;
-        cout << "║  Invalid selection.                             ║" << endl;
+        cout << "║  Invalid selection.                              ║" << endl;
         cout << "╚══════════════════════════════════════════════════╝" << endl;
         return;
     }
@@ -253,8 +248,8 @@ void Patient::bookAppointment(Appointment& appointment){
     if (slots.empty())
     {
         cout << "╔══════════════════════════════════════════════════╗" << endl;
-        cout << "║  No available slots found.                      ║" << endl;
-        cout << "║  Please try different criteria.                ║" << endl;
+        cout << "║  No available slots found.                       ║" << endl;
+        cout << "║  Please try different criteria.                  ║" << endl;
         cout << "╚══════════════════════════════════════════════════╝" << endl;
         return;
     }
@@ -309,14 +304,14 @@ void Patient::bookAppointment(Appointment& appointment){
         selected.getTimeSlot()
     );
 
-    appointment.setStatus("confirmed");
+    appointment.setStatus("pending");
 
     db.insertAppointment(
         appointment.getAppointmentId(),
-        this->getId(),
-        selected.getDoctorId(),
-        selected.getDate(),
-        selected.getTimeSlot()
+        appointment.getPatientId(),
+        appointment.getDoctorId(),
+        appointment.getDate(),
+        appointment.getTime()
     );
 
     db.updateScheduleAvailability(selected.getSlotId(), false);
