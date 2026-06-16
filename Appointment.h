@@ -14,7 +14,7 @@ private:
     string doctorId;
     string date;
     string time;
-    string status; //pending, comfirmed, cancelled or competed 
+    string status; //pending, comfirmed, cancelled or completed 
     bool paid;
 
 public:
