@@ -1,16 +1,20 @@
 #include "Payment.h"
+#include "Database.h"
+#include <iostream>
 
-Payment::Payment(string id,
-                 string patient,
-                 double amount)
+using namespace std;
+
+Payment::Payment(const string& paymentId,
+                 const string& appointmentId,
+                 const string& patientId,
+                 double amount,
+                 const string& method,
+                 const string& status)
 {
-    paymentId = id;
-    patientId = patient;
+    this->paymentId = paymentId;
+    this->appointmentId = appointmentId;
+    this->patientId = patientId;
     this->amount = amount;
-    paid = false;
-}
-
-void Payment::pay()
-{
-    paid = true;
+    this->paymentMethod = method;
+    this->status = status;
 }
