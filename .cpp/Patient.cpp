@@ -91,17 +91,26 @@ void Patient::viewPrescription(Prescription& prescription) {
     cout << "╚══════════════════════════════════════════════════╝" << endl;
 }
 
-void Patient::makePayment(Payment& payment) {
+void Patient::makePayment(Appointment& appointment, Payment& payment) {
     cout << "╔══════════════════════════════════════════════════╗" << endl;
     cout << "║  Payment                                         ║" << endl;
     cout << "║                                                  ║" << endl;
     cout << "║  Select payment option:                          ║" << endl;
     cout << "║  1. Online Payment                               ║" << endl;
     cout << "║  2. Pay in Person                                ║" << endl;
+    cout << "║  0. Cancel                                       ║" << endl;
     cout << "╚══════════════════════════════════════════════════╝" << endl;
 
     int option;
-    cin >> option; 
+    cin >> option;
+
+    if (option == 0)
+    {
+        cout << "╔══════════════════════════════════════════════════╗" << endl;
+        cout << "║  Payment cancelled                               ║" << endl;
+        cout << "╚══════════════════════════════════════════════════╝" << endl;
+        return;
+    }
 
      if(option == 1)
     {
@@ -118,8 +127,10 @@ void Patient::makePayment(Payment& payment) {
         cin >> method;
 
         string paymentInfo;
-
-        cout << "Enter payment information: ";
+        cout << "╔══════════════════════════════════════════════════╗" << endl;
+        cout << "║  Enter payment information:                      ║" << endl;
+        cout << "╚══════════════════════════════════════════════════╝" << endl;
+       
         cin >> paymentInfo;
 
         if(paymentInfo.empty())
@@ -131,7 +142,18 @@ void Patient::makePayment(Payment& payment) {
             return;
         }
 
-        payment.pay();
+        payment.setStatus("paid");
+      
+        db.updatePaymentStatus(payment.getPaymentId(), "paid");
+
+        appointment.setStatus("confirmed");
+        appointment.setPaymentStatus("paid");
+
+        db.updateAppointmentStatus(
+            appointment.getAppointmentId(),
+            "confirmed",
+            Database::currentTimestamp()
+        );
 
         cout << "╔══════════════════════════════════════════════════╗" << endl;
         cout << "║  Payment successful!                             ║" << endl;
@@ -140,7 +162,21 @@ void Patient::makePayment(Payment& payment) {
         cout << "╚══════════════════════════════════════════════════╝" << endl;
     }
     else if(option == 2)
-    {
+    {  
+        payment.setStatus("pending");
+
+        db.insertPayment(
+            payment.getPaymentId(),
+            appointment.getAppointmentId(),
+            payment.getPatientId(),
+            payment.getAmount(),
+            "cash",
+            "pending"
+        );
+
+        appointment.setStatus("confirmed");
+        appointment.setPaymentStatus("pending");
+      
         cout << "╔══════════════════════════════════════════════════╗" << endl;
         cout << "║  Appointment confirmed.                          ║" << endl;
         cout << "║  Payment registered as pending.                  ║" << endl;
