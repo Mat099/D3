@@ -31,6 +31,10 @@ public:
     MedicalRecord loadMedicalRecord(const string& patientId);
     bool updateMedicalRecordTimestamp(const string& recordId,
                                        const string& timestamp);
+    bool updateMedicalRecordFields(const string& recordId,
+                                    const string& allergies,
+                                    const string& medicalHistory,
+                                    const string& timestamp);
 
     // ── Prescriptions ────────────────────────────────────────────────────────
     bool insertPrescription(const Prescription& p);

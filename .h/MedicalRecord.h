@@ -63,6 +63,10 @@ public:
     string getNotes()     const;   // allergies joined by ", "
     void   setDiagnosis(const string& d);
     void   setNotes(const string& n);
+
+    // ── Diagnosis/notes mutation — update in-memory AND persist via db ───────
+    bool updateDiagnosisAndNotes(const string& diagnosis, const string& notes,
+                                  Database& db);
 };
 
 #endif

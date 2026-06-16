@@ -2,7 +2,30 @@
 
 ## Running the test
 
-The test (`test.cpp`) exercises the full database round-trip: schema creation, seeding, loading a medical record, inserting a prescription, same-region transfer, and cross-region transfer block.
+The test (`test.cpp`) exercises every public method in the project — not just
+the database round-trip. It covers `Database` utilities, `User`/`Doctor`/`Nurse`
+login and password flows, all of `Doctor`'s DB-aware mutators (issuing/cancelling
+prescriptions, admitting/transferring/discharging patients), `MedicalRecord`,
+`Prescription`, and `Hospitalization` directly, and the stub entity classes
+(`Appointment`, `Schedule`, `Payment`). `Patient` is temporarily excluded —
+see the note printed by the test itself.
+
+Interactive methods that read from `cin` are exercised by redirecting `cin`
+to a fixed string of input and capturing whatever they print to `cout`, so
+each one gets a real `[PASS]`/`[FAIL]` assertion instead of just "didn't
+crash". The test prints one line per check plus a final `N/M checks passed`
+summary, and exits `0` only if every check passed.
+
+At the time of writing, 3 checks fail and are expected to until someone
+follows up on the limitations they document. Two are a pre-existing UI
+limitation: `Doctor::admitPatient`/`Doctor::transferPatient` read free-text
+department/hospital-name fields with `cin >> field`, which stops at the
+first space — so real multi-word values like `"Ospedale Santa Chiara"` or
+`"General Medicine"` can't be entered correctly through those two prompts.
+The third is a real bug: `MedicalRecord::dischargePatient` never checks
+whether a hospitalization is already discharged, so calling it twice just
+re-discharges with the new date both times instead of rejecting the second
+call as the UI text implies it should.
 
 **Step 1 — Get the SQLite amalgamation**
 
@@ -31,10 +54,12 @@ SQLite must be compiled as C, not C++. Compile it separately first:
 gcc -c data/sqlite3.c -o data/sqlite3.o
 ```
 
-Then compile the rest with G++:
+Then compile the rest with G++. `.cpp/Patient.cpp` is left out for now — it's
+currently out of sync with `.h/Patient.h` (mid-redesign) and won't compile;
+add it back once the two match again:
 
 ```powershell
-g++ -I.h -Idata test.cpp .cpp/Doctor.cpp .cpp/Nurse.cpp .cpp/Patient.cpp .cpp/User.cpp `
+g++ -I.h -Idata test.cpp .cpp/Doctor.cpp .cpp/Nurse.cpp .cpp/User.cpp `
     .cpp/Prescription.cpp .cpp/Hospitalization.cpp .cpp/MedicalRecord.cpp `
     .cpp/Database.cpp .cpp/Appointment.cpp .cpp/Schedule.cpp .cpp/Triage.cpp `
     .cpp/MedicalStaff.cpp data/sqlite3.o -o test

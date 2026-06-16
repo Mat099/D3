@@ -13,7 +13,6 @@ Nurse::Nurse(const string& id,
             const string& phoneNumber, 
             const string& password)
     : User(id, name, surname, email, phoneNumber, password) {
-    //appointments(nullptr), medicalRecord(nullptr) etc
 }
 
 void Nurse::workLogin(string& workPass, string& password, string& name) {
@@ -97,3 +96,40 @@ void Nurse::changePassword(string& password){
 
 }
 
+void Nurse::viewMedicalRecord(MedicalRecord& record) {
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║  Medical Record                                  ║" << endl;
+    cout << "║                                                  ║" << endl;
+    cout << "║  Record ID:  " << record.getRecordId()  << endl;
+    cout << "║  Patient ID: " << record.getPatientId() << endl;
+    cout << "║  Date:       " << record.getDate()      << endl;
+    cout << "║  Diagnosis:  " << record.getDiagnosis() << endl;
+    cout << "║  Notes:      " << record.getNotes()     << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+}
+
+void Nurse::viewPrescription(Prescription& prescription) {
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║  Prescription                                     ║" << endl;
+    cout << "║                                                  ║" << endl;
+    cout << "║  Prescription ID: " << prescription.getPrescriptionId() << endl;
+    cout << "║  Patient ID:      " << prescription.getPatientId()      << endl;
+    cout << "║  Medication:      " << prescription.getMedication()     << endl;
+    cout << "║  Dosage:          " << prescription.getDosage()         << endl;
+    cout << "║  Description:     " << prescription.getDescription()    << endl;
+    cout << "║  Status:          " << (prescription.isActive() ? "Active" : "Cancelled") << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+}
+
+void Nurse::viewHospitalization(Hospitalization& hospitalization) {
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "║  Hospitalization Record                          ║" << endl;
+    cout << "║                                                  ║" << endl;
+    cout << "║  ID:        " << hospitalization.getHospitalizationId() << endl;
+    cout << "║  Patient:   " << hospitalization.getPatientId()         << endl;
+    cout << "║  Room:      " << hospitalization.getRoom()               << endl;
+    cout << "║  Reason:    " << hospitalization.getReason()             << endl;
+    cout << "║  Admitted:  " << hospitalization.getAdmissionDate()      << endl;
+    cout << "║  Status:    " << (hospitalization.isActive() ? "Active" : "Discharged on " + hospitalization.getDischargeDate()) << endl;
+    cout << "╚══════════════════════════════════════════════════╝" << endl;
+}

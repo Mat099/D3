@@ -2,40 +2,38 @@
 #define PATIENT_H
 
 #include "User.h"
+#include "Appointment.h"
+#include "Payment.h"
 #include "MedicalRecord.h"
-#include "Prescription.h"
 #include <string>
 using namespace std;
 
-class Patient : public User {
+class Patient: public User {
 private:
     string insurance;
-    /*Appointment* appointments;
-    Payment* payments;*/
-    MedicalRecord* medicalRecord;
+    string password;
+    Appointment* appointments;
+    Payment* payments;
+    MedicalRecord* medicalRecord;  
 
 public:
-    Patient(const string& id, const string& name, const string& surname, const string& email, 
-        const string& phoneNumber, const string& insurance, const string& password);
+    Patient(string& id, string& name, string& surname, string& email, string& insurance, string& password);
 
     
     //UC1
-    void login(string& email, string& password, string& name);
+    bool login(string& email, string &password);
 
-    //Medical Records
-    void viewMedicalRecord(MedicalRecord& record);
-
-    //Prescriptions
-    void viewPrescription(Prescription& prescription);
-
-    /*UC 2
+    //UC 2
     Appointment* bookAppointment();
     bool cancelAppointment();
     Appointment* rescehduleAppointment();
     Appointment* viewAppointment();
 
     //UC
-    Payment* makePayment();*/
+    MedicalRecord* viewMedicalRecords();
+
+    //UC 4
+    Payment* makePayment();
 
     
     // getters

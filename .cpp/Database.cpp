@@ -164,6 +164,25 @@ bool Database::updateMedicalRecordTimestamp(const string& recordId,
     return ok;
 }
 
+bool Database::updateMedicalRecordFields(const string& recordId,
+                                          const string& allergies,
+                                          const string& medicalHistory,
+                                          const string& timestamp) {
+    sqlite3_stmt* stmt;
+    const char* sql =
+        "UPDATE medical_records "
+        "SET allergies = ?, medical_history = ?, last_modified = ? "
+        "WHERE record_id = ?;";
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) return false;
+    sqlite3_bind_text(stmt, 1, allergies.c_str(),     -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 2, medicalHistory.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 3, timestamp.c_str(),      -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 4, recordId.c_str(),       -1, SQLITE_STATIC);
+    bool ok = sqlite3_step(stmt) == SQLITE_DONE;
+    sqlite3_finalize(stmt);
+    return ok;
+}
+
 // ── Prescriptions ─────────────────────────────────────────────────────────────
 
 bool Database::insertPrescription(const Prescription& p) {

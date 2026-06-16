@@ -37,6 +37,8 @@ public:
     //UC
     void viewHospitalization(Hospitalization& hospitalization);
 
+    void viewPrescription(Prescription& prescription);
+
     
     
 };

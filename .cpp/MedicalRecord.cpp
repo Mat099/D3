@@ -231,3 +231,26 @@ void MedicalRecord::setDiagnosis(const string& d) {
 void MedicalRecord::setNotes(const string& n) {
     allergies = splitStr(n, ", ");
 }
+
+bool MedicalRecord::updateDiagnosisAndNotes(const string& diagnosis,
+                                             const string& notes,
+                                             Database& db) {
+    setDiagnosis(diagnosis);
+    setNotes(notes);
+
+    string ts = Database::currentTimestamp();
+    lastModified = ts;
+
+    string historyStr;
+    for (size_t i = 0; i < medicalHistory.size(); ++i) {
+        if (i > 0) historyStr += ". ";
+        historyStr += medicalHistory[i];
+    }
+    string allergiesStr;
+    for (size_t i = 0; i < allergies.size(); ++i) {
+        if (i > 0) allergiesStr += ", ";
+        allergiesStr += allergies[i];
+    }
+
+    return db.updateMedicalRecordFields(recordId, allergiesStr, historyStr, ts);
+}

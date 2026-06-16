@@ -27,19 +27,12 @@ public:
 
     // Medical Records
     void viewMedicalRecord(MedicalRecord& record);
-    void updateMedicalRecord(MedicalRecord& record);
 
-    // Prescriptions
-    void issuePrescription(Prescription& prescription);
     void viewPrescription(Prescription& prescription);
-
-    // Hospitalization
-    void admitPatient(Hospitalization& hospitalization);
-    void dischargePatient(Hospitalization& hospitalization);
-    void viewHospitalization(Hospitalization& hospitalization);
 
     // DB-aware methods
     MedicalRecord loadPatientRecord(Database& db);
+    void updateMedicalRecord(MedicalRecord& record, Database& db);
     void issuePrescription(MedicalRecord& record, Database& db);
     void cancelPrescription(MedicalRecord& record, Database& db);
     void updatePrescriptionDosage(MedicalRecord& record, Database& db);
