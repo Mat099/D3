@@ -10,14 +10,14 @@ Appointment::Appointment(const string& id,
                          const string& date,
                          const string& time,
                          const string& status)
+    : appointmentId(id),
+      patientId(patient),
+      doctorId(doctor),
+      date(date),
+      time(time),
+      status(status),
+      paid(false)
 {
-    this->appointmentId = id;
-    this->patientId = patient;
-    this->doctorId = doctor;
-    this->date = date;
-    this->time = time;
-    this->status = status;
-    this->paid = false;
 }
 
 void Appointment::confirm(Database& db)
@@ -69,13 +69,13 @@ void Appointment::markPaid(Database& db)
 
     cout << "╔══════════════════════════════════════════════════╗" << endl;
     cout << "║  Payment marked as completed                     ║" << endl;
-    cout << "║  Appointment is now confirmed                   ║" << endl;
+    cout << "║  Appointment is now confirmed                    ║" << endl;
     cout << "╚══════════════════════════════════════════════════╝" << endl;
 }
 
 void Appointment::display()
 {
-   cout << "╔══════════════════════════════════════════════════╗" << endl;
+    cout << "╔══════════════════════════════════════════════════╗" << endl;
     cout << "║  Appointment                                     ║" << endl;
     cout << "║                                                  ║" << endl;
     cout << "║  ID:       " << appointmentId << endl;
