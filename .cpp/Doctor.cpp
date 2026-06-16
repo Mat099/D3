@@ -15,7 +15,6 @@ Doctor::Doctor(const string& id,
                 const string& specialization, 
                 const string& password)
     : User(id, name, surname, email, phoneNumber, password), specialization(specialization) {
-    //appointments(nullptr), medicalRecord(nullptr) etc
 }
 
 void Doctor::workLogin(string& workPass, string &password, string& name) {
