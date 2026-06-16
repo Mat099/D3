@@ -158,7 +158,7 @@ void Patient::makePayment(Appointment& appointment, Payment& payment, Database& 
     else if(option == 2)
     {  
         payment.setStatus("pending");
-
+        
         db.insertPayment(
             payment.getPaymentId(),
             appointment.getAppointmentId(),
@@ -170,6 +170,7 @@ void Patient::makePayment(Appointment& appointment, Payment& payment, Database& 
 
         appointment.setPaid(false);
         appointment.setStatus("confirmed");
+        appointment.confirm(db); 
       
         cout << "╔══════════════════════════════════════════════════╗" << endl;
         cout << "║  Appointment confirmed.                          ║" << endl;
@@ -184,7 +185,7 @@ void Patient::makePayment(Appointment& appointment, Payment& payment, Database& 
     }
 }
 
-void Patient::bookAppointment(Appointment& appointment){
+void Patient::bookAppointment(Database& db){
     cout << "╔══════════════════════════════════════════════════╗" << endl;
     cout << "║  Appointment Booking                             ║" << endl;
     cout << "║                                                  ║" << endl;
@@ -295,7 +296,7 @@ void Patient::bookAppointment(Appointment& appointment){
 
     Schedule selected = slots[slotChoice - 1];
 
-    Appointment appointment(
+    Appointment newAppointment(
         db.generateNextId("appointments", "appointment_id", "APT"),
         this->getId(),
         selected.getDoctorId(),
@@ -306,22 +307,22 @@ void Patient::bookAppointment(Appointment& appointment){
     appointment.setStatus("pending");
 
     db.insertAppointment(
-        appointment.getAppointmentId(),
-        appointment.getPatientId(),
-        appointment.getDoctorId(),
-        appointment.getDate(),
-        appointment.getTime()
+        newAppointment.getAppointmentId(),
+        newAppointment.getPatientId(),
+        newAppointment.getDoctorId(),
+        newAppointment.getDate(),
+        newAppointment.getTime()
     );
 
     db.updateScheduleAvailability(selected.getSlotId(), false);
   
     cout << "╔══════════════════════════════════════════════════╗" << endl;
-    cout << "║             APPOINTMENT CONFIRMED                ║" << endl;
+    cout << "║             APPOINTMENT BOOKED                   ║" << endl;
     cout << "╠══════════════════════════════════════════════════╣" << endl;
     cout << "║  Date:   " << selected.getDate() << endl;
     cout << "║  Time:   " << selected.getTimeSlot() << endl;
     cout << "║  Doctor: " << selected.getDoctorId() << endl;
-    cout << "║  Status: CONFIRMED                               ║" << endl;
+    cout << "║  Status: PENDING                                 ║" << endl;
     cout << "╚══════════════════════════════════════════════════╝" << endl;
 
 }
