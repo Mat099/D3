@@ -29,7 +29,7 @@ public:
     //UC
     MedicalRecord* viewMedicalRecords();
 
-    //UC
+    //UC 4
     Payment* makePayment();
 
     
